@@ -58,7 +58,6 @@ class DioClient {
       response = await _dio.get(
         endpoint,
         data: params ?? data,
-        queryParameters: params,
         options: options,
       );
       return response;
@@ -83,7 +82,6 @@ class DioClient {
       Response response;
       response = await _dio.post(
         endpoint,
-        queryParameters: params,
         data: params ?? data,
         options: options,
       );

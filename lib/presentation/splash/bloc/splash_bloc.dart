@@ -20,7 +20,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     emit(state.copyWith(status: SplashStatus.loading));
 
     // Add a small delay for splash screen visibility
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 5));
 
     // Check if user is authenticated
     final result = await _authCheckUseCase();

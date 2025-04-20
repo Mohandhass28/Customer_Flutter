@@ -29,7 +29,7 @@ class AuthApiServiceImpl implements AuthApiService {
   Future<Either<Failure, SendOTP>> sendOTP(LoginParams params) async {
     try {
       final response = await _dioClient.post(
-        endpoint: '/auth/send-otp',
+        endpoint: 'customer/sendOtp',
         params: params.toJson(),
       );
 
@@ -93,9 +93,10 @@ class AuthApiServiceImpl implements AuthApiService {
       final token = _sharedPreferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        return const Right(false);
+        return const Left(AuthFailure(message: 'No token found'));
       }
-      return const Right(true);
+
+      return Right(true);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
