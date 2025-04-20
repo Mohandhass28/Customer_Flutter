@@ -1,4 +1,5 @@
 import 'package:customer/core/config/theme/app_theme.dart';
+import 'package:customer/domain/auth/usecases/auth_check_usecase.dart';
 import 'package:customer/presentation/splash/bloc/splash_bloc.dart';
 import 'package:customer/presentation/splash/page/splash_page.dart';
 import 'package:customer/service_locator.dart';
@@ -23,7 +24,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SplashBloc()..add(AppStartEvent()),
+      create: (context) => SplashBloc(
+        authCheckUseCase: sl<AuthCheckUseCase>(),
+      )..add(AppStartEvent()),
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: AppTheme.lightTheme,
