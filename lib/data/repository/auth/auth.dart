@@ -1,5 +1,6 @@
 import 'package:customer/core/error/failures.dart';
-import 'package:customer/data/models/auth/verify_otp_model/login_params.dart';
+import 'package:customer/data/models/auth/send_otp_model/send_otp_params.dart';
+import 'package:customer/data/models/auth/verify_otp_model/verify_otp.dart';
 import 'package:customer/data/source/auth/auth_api_service.dart';
 import 'package:customer/domain/auth/entities/send_otp.dart';
 import 'package:customer/domain/auth/entities/user.dart';
@@ -13,12 +14,12 @@ class AuthRepositoryImpl implements AuthRepository {
       : _authApiService = authApiService;
 
   @override
-  Future<Either<Failure, SendOTP>> sendOTP(LoginParams params) async {
+  Future<Either<Failure, SendOTP>> sendOTP(SendOTPParams params) async {
     return await _authApiService.sendOTP(params);
   }
 
   @override
-  Future<Either<Failure, User>> verifyOTP(LoginParams params) async {
+  Future<Either<Failure, User>> verifyOTP(VerifyOtpParams params) async {
     return await _authApiService.verifyOTP(params);
   }
 

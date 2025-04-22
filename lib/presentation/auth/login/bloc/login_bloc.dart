@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:customer/data/models/auth/send_otp_model/send_otp_model.dart';
-import 'package:customer/data/models/auth/verify_otp_model/login_params.dart';
+import 'package:customer/data/models/auth/send_otp_model/send_otp_params.dart';
+import 'package:customer/data/models/auth/verify_otp_model/verify_otp.dart';
 import 'package:customer/domain/auth/usecases/login_usecase.dart';
 import 'package:equatable/equatable.dart';
 
@@ -20,7 +21,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       sendOTPEvent event, Emitter<LoginState> emit) async {
     emit(state.copyWith(status: LoginStatus.loading));
 
-    final result = await _sendOTPUseCase(LoginParams(phone: event.number));
+    final result = await _sendOTPUseCase(SendOTPParams(number: event.number));
 
     result.fold(
       (failure) {

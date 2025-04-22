@@ -1,6 +1,10 @@
 import 'package:customer/core/network/dio_client.dart';
+import 'package:customer/data/repository/address/address.dart';
 import 'package:customer/data/repository/auth/auth.dart';
+import 'package:customer/data/source/address/address_api_service.dart';
 import 'package:customer/data/source/auth/auth_api_service.dart';
+import 'package:customer/domain/address/repository/address.dart';
+import 'package:customer/domain/address/usecases/get_adderss_list_usecase.dart';
 import 'package:customer/domain/auth/repository/auth.dart';
 import 'package:customer/domain/auth/usecases/auth_check_usecase.dart';
 import 'package:customer/domain/auth/usecases/login_usecase.dart';
@@ -44,6 +48,24 @@ void setupServiceLocator() {
   sl.registerLazySingleton<AuthCheckUseCase>(
     () => AuthCheckUseCase(
       authRepository: sl<AuthRepository>(),
+    ),
+  );
+
+  sl.registerLazySingleton<AddressApiService>(
+    () => AddressApiServiceImpl(
+      dioClient: sl<DioClient>(),
+      sharedPreferences: sharedPref,
+    ),
+  );
+
+  sl.registerLazySingleton<AddressRepository>(
+    () => AddressRepositoryImpl(
+      addressApiService: sl<AddressApiService>(),
+    ),
+  );
+  sl.registerLazySingleton<GetAddressListUseCase>(
+    () => GetAddressListUseCase(
+      addressRepository: sl<AddressRepository>(),
     ),
   );
 }

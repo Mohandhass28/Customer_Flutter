@@ -10,7 +10,7 @@ class SendOTPModel extends SendOTP {
   factory SendOTPModel.fromJson(Map<String, dynamic> json) {
     return SendOTPModel(
       status: json['status'] ?? 0,
-      message: json['message'] ?? '',
+      message: json['msg'] ?? '',
       otp: json['otp'] ?? 0,
     );
   }

@@ -1,3 +1,4 @@
+import 'package:customer/core/config/theme/app_color.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -68,5 +69,22 @@ class AppTheme {
     colorScheme: ColorScheme.fromSwatch()
         .copyWith(secondary: Colors.blue)
         .copyWith(background: Colors.white),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+      backgroundColor: WidgetStateProperty.all<Color>(
+        AppColor.primaryColor,
+      ),
+      minimumSize: WidgetStateProperty.all<Size>(
+        Size(double.infinity, 56),
+      ),
+      padding: WidgetStateProperty.all<EdgeInsets>(
+        EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+      ),
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    )),
   );
 }

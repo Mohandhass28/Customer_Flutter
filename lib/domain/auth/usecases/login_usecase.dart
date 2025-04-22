@@ -1,9 +1,11 @@
 import 'package:customer/core/error/failures.dart';
-import 'package:customer/data/models/auth/verify_otp_model/login_params.dart';
+import 'package:customer/data/models/auth/verify_otp_model/verify_otp.dart';
 import 'package:customer/domain/auth/entities/send_otp.dart';
 import 'package:customer/domain/auth/entities/user.dart';
 import 'package:customer/domain/auth/repository/auth.dart';
 import 'package:dartz/dartz.dart';
+
+import '../../../data/models/auth/send_otp_model/send_otp_params.dart';
 
 class SendOTPUseCase {
   final AuthRepository _authRepository;
@@ -11,7 +13,7 @@ class SendOTPUseCase {
   SendOTPUseCase({required AuthRepository authRepository})
       : _authRepository = authRepository;
 
-  Future<Either<Failure, SendOTP>> call(LoginParams params) async {
+  Future<Either<Failure, SendOTP>> call(SendOTPParams params) async {
     return await _authRepository.sendOTP(params);
   }
 }
@@ -22,7 +24,7 @@ class VerifyOTPUseCase {
   VerifyOTPUseCase({required AuthRepository authRepository})
       : _authRepository = authRepository;
 
-  Future<Either<Failure, User>> call(LoginParams params) async {
+  Future<Either<Failure, User>> call(VerifyOtpParams params) async {
     return await _authRepository.verifyOTP(params);
   }
 }

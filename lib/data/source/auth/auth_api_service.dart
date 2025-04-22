@@ -1,7 +1,8 @@
 import 'package:customer/core/error/failures.dart';
 import 'package:customer/core/network/dio_client.dart';
 import 'package:customer/data/models/auth/send_otp_model/send_otp_model.dart';
-import 'package:customer/data/models/auth/verify_otp_model/login_params.dart';
+import 'package:customer/data/models/auth/send_otp_model/send_otp_params.dart';
+import 'package:customer/data/models/auth/verify_otp_model/verify_otp.dart';
 import 'package:customer/data/models/auth/verify_otp_model/login_response.dart';
 import 'package:customer/data/models/auth/verify_otp_model/user_model.dart';
 import 'package:customer/domain/auth/entities/send_otp.dart';
@@ -10,8 +11,8 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AuthApiService {
-  Future<Either<Failure, SendOTP>> sendOTP(LoginParams params);
-  Future<Either<Failure, UserModel>> verifyOTP(LoginParams params);
+  Future<Either<Failure, SendOTP>> sendOTP(SendOTPParams params);
+  Future<Either<Failure, UserModel>> verifyOTP(VerifyOtpParams params);
   Future<Either<Failure, bool>> authCheck();
 }
 
@@ -26,7 +27,7 @@ class AuthApiServiceImpl implements AuthApiService {
         _sharedPreferences = sharedPreferences;
 
   @override
-  Future<Either<Failure, SendOTP>> sendOTP(LoginParams params) async {
+  Future<Either<Failure, SendOTP>> sendOTP(SendOTPParams params) async {
     try {
       final response = await _dioClient.post(
         endpoint: 'customer/sendOtp',
@@ -54,10 +55,10 @@ class AuthApiServiceImpl implements AuthApiService {
   }
 
   @override
-  Future<Either<Failure, UserModel>> verifyOTP(LoginParams params) async {
+  Future<Either<Failure, UserModel>> verifyOTP(VerifyOtpParams params) async {
     try {
       final response = await _dioClient.post(
-        endpoint: '/auth/verify-otp',
+        endpoint: 'customer/verifyOtp',
         params: params.toJson(),
       );
 
@@ -89,8 +90,9 @@ class AuthApiServiceImpl implements AuthApiService {
   @override
   Future<Either<Failure, bool>> authCheck() async {
     try {
-      // Check if token exists in SharedPreferences
       final token = _sharedPreferences.getString('token');
+
+      print('token: $token');
 
       if (token == null || token.isEmpty) {
         return const Left(AuthFailure(message: 'No token found'));

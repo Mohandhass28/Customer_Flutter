@@ -1,7 +1,7 @@
 import 'package:customer/core/error/failures.dart';
 import 'package:customer/core/network/dio_client.dart';
 import 'package:customer/data/models/auth/send_otp_model/send_otp_model.dart';
-import 'package:customer/data/models/auth/verify_otp_model/login_params.dart';
+import 'package:customer/data/models/auth/verify_otp_model/verify_otp.dart';
 import 'package:customer/data/models/auth/verify_otp_model/login_response.dart';
 import 'package:customer/data/models/auth/verify_otp_model/user_model.dart';
 import 'package:customer/data/source/auth/auth_api_service.dart';

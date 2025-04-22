@@ -2,10 +2,13 @@ import 'package:customer/core/config/theme/app_color.dart';
 import 'package:flutter/material.dart';
 
 class ButtonComponent extends StatefulWidget {
-  const ButtonComponent({super.key, required Function() onPressedEvent})
-      : _onPressedEvent = onPressedEvent;
+  const ButtonComponent(
+      {super.key, required Function() onPressedEvent, required String text})
+      : _onPressedEvent = onPressedEvent,
+        _text = text;
 
   final Function() _onPressedEvent;
+  final String _text;
 
   @override
   State<ButtonComponent> createState() => _ButtonComponentState();
@@ -21,16 +24,16 @@ class _ButtonComponentState extends State<ButtonComponent> {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ElevatedButton(
           onPressed: widget._onPressedEvent,
-          child: Text(
-            "Next",
-            style: TextStyle(
-              color: AppColor.textColor,
-            ),
-          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColor.primaryColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(
+            widget._text,
+            style: TextStyle(
+              color: AppColor.textColor,
             ),
           ),
         ),

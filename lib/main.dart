@@ -1,3 +1,4 @@
+import 'package:customer/common/helper/router/app_routes_config.dart';
 import 'package:customer/core/config/theme/app_theme.dart';
 import 'package:customer/domain/auth/usecases/auth_check_usecase.dart';
 import 'package:customer/presentation/splash/bloc/splash_bloc.dart';
@@ -26,12 +27,17 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (context) => SplashBloc(
         authCheckUseCase: sl<AuthCheckUseCase>(),
-      )..add(AppStartEvent()),
-      child: MaterialApp(
+      ),
+      child: MaterialApp.router(
         title: 'Flutter Demo',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
-        home: const SplashPage(),
+        routerConfig: AppRoutesConfig.router,
+        // Enable router logging for debugging
+        builder: (context, child) {
+          if (child == null) return const SizedBox.shrink();
+          return child;
+        },
       ),
     );
   }
