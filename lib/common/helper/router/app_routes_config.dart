@@ -112,7 +112,13 @@ class AppRoutesConfig {
       GoRoute(
         name: 'save-address',
         path: '/save-address',
-        builder: (context, state) => const SaveAddressPage(),
+        builder: (context, state) {
+          final address = state.extra as Map<String, dynamic>;
+          return SaveAddressPage(
+              address: address['address'],
+              latitude: address['latitude'],
+              longitude: address['longitude']);
+        },
       ),
       GoRoute(
         name: 'shop-details',

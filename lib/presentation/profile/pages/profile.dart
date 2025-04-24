@@ -18,7 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/home');
+            context.pop();
           },
         ),
       ),

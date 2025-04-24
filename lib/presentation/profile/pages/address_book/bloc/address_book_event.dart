@@ -22,3 +22,11 @@ class SetDefaultAddressEvent extends AddressBookEvent {
   @override
   List<Object> get props => [];
 }
+
+class CreateAddressEvent extends AddressBookEvent {
+  final CreateAddressEntity createAddressEntity;
+  const CreateAddressEvent({required this.createAddressEntity});
+
+  @override
+  List<Object> get props => [];
+}

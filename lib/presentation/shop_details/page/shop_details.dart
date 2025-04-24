@@ -17,7 +17,7 @@ class _ShopDetailsState extends State<ShopDetails> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/home');
+            context.pop('/home');
           },
         ),
       ),

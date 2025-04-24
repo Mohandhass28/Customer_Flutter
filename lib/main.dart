@@ -33,7 +33,6 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
         routerConfig: AppRoutesConfig.router,
-        // Enable router logging for debugging
         builder: (context, child) {
           if (child == null) return const SizedBox.shrink();
           return child;

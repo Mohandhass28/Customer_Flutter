@@ -6,8 +6,6 @@ part 'tabs_state.dart';
 
 class TabsBloc extends Bloc<TabsEvent, TabsState> {
   TabsBloc() : super(TabsInitial()) {
-    on<TabsEvent>((event, emit) {
-      // TODO: implement event handler
-    });
+    on<TabsEvent>((event, emit) {});
   }
 }

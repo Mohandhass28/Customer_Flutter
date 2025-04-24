@@ -68,6 +68,8 @@ class AuthApiServiceImpl implements AuthApiService {
         // Save token to shared preferences
         await _sharedPreferences.setString(
             'token', loginResponse.payload!.token);
+        await _sharedPreferences.setString('number', params.phone);
+
         return Right(loginResponse.payload!.user!);
       } else {
         return Left(AuthFailure(message: loginResponse.message));

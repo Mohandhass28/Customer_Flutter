@@ -14,7 +14,7 @@ class _RecommendedCardPageState extends State<RecommendedCardPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.go('/shop-details');
+        context.push('/shop-details');
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,

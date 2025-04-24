@@ -44,13 +44,6 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
   void initState() {
     super.initState();
     _getCurrentLocation();
-
-    // Add listener to map controller to track map movements
-    _mapController.mapEventStream.listen((event) {
-      setState(() {
-        _currentMapCenter = _mapController.camera.center;
-      });
-    });
   }
 
   Future<void> _getCurrentLocation() async {
@@ -260,16 +253,11 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                // Get the current center of the map
-                final currentCenter = getCurrentMapCenter();
-                _log('Current map center: $currentCenter');
-
-                // Get fresh address for the current location
                 final address = _addressText;
 
-                // Make sure we have a valid address
-                if (address == "Unknown Address" || address.isEmpty) {
-                  // Show an error message
+                if (address == "Unknown Address" ||
+                    address.isEmpty ||
+                    address == "Move the map to see the address here") {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -291,9 +279,9 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
 
                 // Navigate directly without async gap
                 context.push('/save-address', extra: {
-                  'latitude': currentCenter.latitude,
-                  'longitude': currentCenter.longitude,
                   'address': address,
+                  'latitude': _currentMapCenter.latitude,
+                  'longitude': _currentMapCenter.longitude,
                 });
               },
               style: ElevatedButton.styleFrom(
@@ -314,9 +302,7 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
     );
   }
 
-  // Method to get the current center of the map
   LatLng getCurrentMapCenter() {
-    // Get the latest center from the map controller
     _currentMapCenter = _mapController.camera.center;
     return _currentMapCenter;
   }
@@ -344,10 +330,6 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
         });
       } else {
         print('No placemarks found for this location.');
-        setState(() {
-          _addressText = "No placemarks found for this location.";
-          _isLoadingAddress = false;
-        });
       }
     } catch (e, stackTrace) {
       print('Error: $e');
@@ -375,17 +357,11 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
           initialCenter: _currentPosition ?? const LatLng(0, 0),
           initialZoom: 15,
           onMapEvent: (event) {
-            _log('Map event: ${event.runtimeType}');
-
-            // Update current map center whenever the map moves
             setState(() {
               _currentMapCenter = _mapController.camera.center;
             });
-            _log('Current map center: $_currentMapCenter');
 
-            // Only get address when map movement ends to avoid too many API calls
             if (event is MapEventMoveEnd) {
-              // Set loading state before getting address
               setState(() {
                 _isLoadingAddress = true;
               });

@@ -25,7 +25,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
   Widget ShopCard() {
     return GestureDetector(
       onTap: () {
-        context.go('/shop-details');
+        context.push('/shop-details');
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

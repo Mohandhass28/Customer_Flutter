@@ -1,13 +1,13 @@
 class AddressParam {
-  final String searchVlaue;
+  final String searchValue;
 
   AddressParam({
-    required this.searchVlaue,
+    required this.searchValue,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'search_val': searchVlaue,
+      'search_val': searchValue,
     };
   }
 }

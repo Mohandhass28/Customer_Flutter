@@ -61,7 +61,7 @@ class _OtpPageState extends State<OtpPage> {
                 ),
               );
               // Use GoRouter for navigation with path
-              context.go('/home');
+              context.replace('/home');
             }
             if (state.status == VerifyOtpStatus.failure) {
               ScaffoldMessenger.of(context).showSnackBar(
