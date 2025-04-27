@@ -1,8 +1,17 @@
+import 'package:customer/core/config/theme/app_color.dart';
+import 'package:customer/data/models/shop/shop_details/shop_details_model.dart';
+import 'package:customer/domain/shop/entities/shop_details/shop_details_params.dart';
+import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
+import 'package:customer/presentation/shop_details/bloc/shop_details_bloc.dart';
+import 'package:customer/presentation/shop_details/widget/shop_card/shop_card.dart';
+import 'package:customer/service_locator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class ShopDetails extends StatefulWidget {
-  const ShopDetails({super.key});
+  final int shopId;
+  const ShopDetails({super.key, required this.shopId});
 
   @override
   State<ShopDetails> createState() => _ShopDetailsState();
@@ -11,18 +20,295 @@ class ShopDetails extends StatefulWidget {
 class _ShopDetailsState extends State<ShopDetails> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shop Details'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            context.pop('/home');
-          },
+    return BlocProvider(
+      create: (context) => ShopDetailsBloc(
+        shopDetailsUsecase: sl<ShopDetailsUsecase>(),
+      )..add(
+          GetShopDetailsEvent(
+            params: ShopDetailsParams(
+              shopId: widget.shopId,
+              latitude: 22.584761,
+              longitude: 88.473778,
+            ),
+          ),
         ),
-      ),
-      body: const Center(
-        child: Text('Shop Details Page'),
+      child: BlocConsumer<ShopDetailsBloc, ShopDetailsState>(
+        listener: (context, state) {
+          if (state.status == ShopDetailsStatus.failure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.errorMessage ?? 'Unknown error',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state.status == ShopDetailsStatus.loading) {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          return Scaffold(
+            backgroundColor: Colors.white,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(200),
+              child: Container(
+                color: Colors.white,
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Back button and shop name
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16.0, top: 8.0, right: 16.0),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                context.pop();
+                              },
+                              child: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.black,
+                                size: 24,
+                              ),
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  state.shopDetails?.shopData.shopDetails
+                                          .shopName ??
+                                      "",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Empty SizedBox to balance the back button
+                            const SizedBox(width: 24),
+                          ],
+                        ),
+                      ),
+
+                      // Categories
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            state.shopDetails?.shopData.productCategory
+                                    .toString()
+                                    .split("[")[1]
+                                    .split("]")[0] ??
+                                "",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Rating and reviews
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColor.primaryColor,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      state.shopDetails?.shopData.avgRating
+                                              .toString() ??
+                                          "",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    SizedBox(width: 2),
+                                    Icon(
+                                      Icons.star,
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${state.shopDetails?.shopData.totalCount ?? 0} Ratings',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Time and distance
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            '${state.shopDetails?.shopData.deliveryTime ?? 0} minutes • ${state.shopDetails?.shopData.distance ?? 0} km',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  state.shopDetails?.shopData.userDetails
+                                          .name ??
+                                      "",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.primaryColor,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    spacing: 10,
+                                    children: [
+                                      Text(
+                                        "0",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white),
+                                      ),
+                                      Text(
+                                        "Review",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white),
+                                      ),
+                                      Icon(
+                                        Icons.star,
+                                        size: 12,
+                                        color: Colors.white,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {},
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                                  child: const Text(
+                                    'Write a Review',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColor.primaryColor,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            body: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        "Recommended",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return ShopCard(
+                          productDetails: state.shopDetails!.shopData
+                              .productList[index] as ProductModel,
+                        );
+                      },
+                      childCount:
+                          state.shopDetails?.shopData.productList.length ?? 0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

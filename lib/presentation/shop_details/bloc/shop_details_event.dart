@@ -6,3 +6,11 @@ sealed class ShopDetailsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class GetShopDetailsEvent extends ShopDetailsEvent {
+  final ShopDetailsParams params;
+  const GetShopDetailsEvent({required this.params});
+
+  @override
+  List<Object> get props => [];
+}

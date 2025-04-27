@@ -2,14 +2,22 @@ import 'package:customer/core/bloc/default_address_header/bloc/address_header_bl
 import 'package:customer/core/network/dio_client.dart';
 import 'package:customer/data/repository/address/address.dart';
 import 'package:customer/data/repository/auth/auth.dart';
+import 'package:customer/data/repository/product/product.dart';
+import 'package:customer/data/repository/shop/shop.dart';
 import 'package:customer/data/source/address/address_api_service.dart';
 import 'package:customer/data/source/auth/auth_api_service.dart';
+import 'package:customer/data/source/product/product_api_service.dart';
+import 'package:customer/data/source/shop/shop_api_service.dart';
 import 'package:customer/domain/address/repository/address.dart';
 import 'package:customer/domain/address/usecases/get_adderss_list_usecase.dart';
 import 'package:customer/domain/address/usecases/get_default_address_usecase.dart';
 import 'package:customer/domain/auth/repository/auth.dart';
 import 'package:customer/domain/auth/usecases/auth_check_usecase.dart';
 import 'package:customer/domain/auth/usecases/login_usecase.dart';
+import 'package:customer/domain/product/repository/product.dart';
+import 'package:customer/domain/product/usecases/product_details_usecase.dart';
+import 'package:customer/domain/shop/repository/shop.dart';
+import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
 import 'package:customer/main.dart';
 import 'package:get_it/get_it.dart';
 
@@ -19,6 +27,8 @@ void setupServiceLocator() {
   _registerCore();
   _registerAuth();
   _registerAddress();
+  _registerShop();
+  _registerProduct();
 }
 
 void _registerCore() {
@@ -94,6 +104,61 @@ void _registerAddress() {
   sl.registerLazySingleton<AddressHeaderBloc>(
     () => AddressHeaderBloc(
       getDfaultusecase: sl<GetDefaultAddressUseCase>(),
+    ),
+  );
+}
+
+void _registerShop() {
+  // Data sources
+  sl.registerLazySingleton<ShopApiService>(
+    () => ShopApiServiceImpl(
+      dioClient: sl<DioClient>(),
+      sharedPreferences: sharedPref,
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<ShopRepository>(
+    () => ShopRepositoryImpl(
+      shopApiService: sl<ShopApiService>(),
+    ),
+  );
+
+  // Use cases for shop list
+  sl.registerLazySingleton<ShopListUsecase>(
+    () => ShopListUsecase(
+      shopRepository: sl<ShopRepository>(),
+    ),
+  );
+
+  // Use cases for shop details
+  sl.registerLazySingleton<ShopDetailsUsecase>(
+    () => ShopDetailsUsecase(
+      shopRepository: sl<ShopRepository>(),
+    ),
+  );
+}
+
+void _registerProduct() {
+  // Data sources
+  sl.registerLazySingleton<ProductApiService>(
+    () => ProductApiServiceImpl(
+      dioClient: sl<DioClient>(),
+      sharedPreferences: sharedPref,
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<ProductRepository>(
+    () => ProductRepositoryImpl(
+      productApiService: sl<ProductApiService>(),
+    ),
+  );
+
+  // Use cases for product details
+  sl.registerLazySingleton<ProductDetailsUsecase>(
+    () => ProductDetailsUsecase(
+      productRepository: sl<ProductRepository>(),
     ),
   );
 }

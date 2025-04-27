@@ -123,7 +123,12 @@ class AppRoutesConfig {
       GoRoute(
         name: 'shop-details',
         path: '/shop-details',
-        builder: (context, state) => const ShopDetails(),
+        builder: (context, state) {
+          final shopId = state.extra as Map<String, dynamic>;
+          return ShopDetails(
+            shopId: shopId['shopId'],
+          );
+        },
       ),
     ],
   );

@@ -75,7 +75,8 @@ class _ListMapPageState extends State<ListMapPage> {
   }
 
   Widget _shopCardList() {
-    return SingleChildScrollView(
+    return SizedBox(
+      height: 400,
       child: ListViewWidget(),
     );
   }
