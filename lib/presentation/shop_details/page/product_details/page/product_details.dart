@@ -139,6 +139,8 @@ class ProductDetails extends StatefulWidget {
                               Row(
                                 children: [
                                   Container(
+                                    height: 120,
+                                    width: 120,
                                     constraints: const BoxConstraints(
                                       maxHeight: 120,
                                       maxWidth: 120,

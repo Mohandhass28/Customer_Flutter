@@ -37,7 +37,9 @@ class _ProfilePageState extends State<ProfilePage> {
             Sections(
               icon: Icons.notifications,
               text: "Notifications",
-              onPressed: () {},
+              onPressed: () {
+                context.push('/notifications');
+              },
             ),
             Sections(
               icon: Icons.person,
@@ -59,7 +61,9 @@ class _ProfilePageState extends State<ProfilePage> {
             Sections(
               icon: Icons.edit_document,
               text: "Past Orders",
-              onPressed: () {},
+              onPressed: () {
+                context.push('/past-orders');
+              },
             ),
             Sections(
               icon: Icons.book,
@@ -71,7 +75,9 @@ class _ProfilePageState extends State<ProfilePage> {
             Sections(
               icon: Icons.question_answer,
               text: "Help",
-              onPressed: () {},
+              onPressed: () {
+                context.push('/help');
+              },
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20),
@@ -87,17 +93,23 @@ class _ProfilePageState extends State<ProfilePage> {
             Sections(
               icon: Icons.wallet,
               text: "Wallet",
-              onPressed: () {},
+              onPressed: () {
+                context.push('/wallet');
+              },
             ),
             Sections(
               icon: Icons.account_balance,
               text: "Account Details",
-              onPressed: () {},
+              onPressed: () {
+                context.push('/address-details');
+              },
             ),
             Sections(
               icon: Icons.question_answer,
               text: "About",
-              onPressed: () {},
+              onPressed: () {
+                context.push('/about');
+              },
             ),
             Sections(
               icon: Icons.logout,

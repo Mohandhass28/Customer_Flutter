@@ -10,6 +10,10 @@ class AccountDatails extends StatefulWidget {
 class _AccountDatailsState extends State<AccountDatails> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Account Details"),
+      ),
+    );
   }
 }

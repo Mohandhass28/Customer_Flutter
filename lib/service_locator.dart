@@ -1,11 +1,14 @@
 import 'package:customer/core/bloc/default_address_header/bloc/address_header_bloc.dart';
 import 'package:customer/core/network/dio_client.dart';
+import 'package:customer/core/services/cart_refresh_service.dart';
 import 'package:customer/data/repository/address/address.dart';
 import 'package:customer/data/repository/auth/auth.dart';
+import 'package:customer/data/repository/cart/cart.dart';
 import 'package:customer/data/repository/product/product.dart';
 import 'package:customer/data/repository/shop/shop.dart';
 import 'package:customer/data/source/address/address_api_service.dart';
 import 'package:customer/data/source/auth/auth_api_service.dart';
+import 'package:customer/data/source/cart/cart_api_service.dart';
 import 'package:customer/data/source/product/product_api_service.dart';
 import 'package:customer/data/source/shop/shop_api_service.dart';
 import 'package:customer/domain/address/repository/address.dart';
@@ -14,6 +17,8 @@ import 'package:customer/domain/address/usecases/get_default_address_usecase.dar
 import 'package:customer/domain/auth/repository/auth.dart';
 import 'package:customer/domain/auth/usecases/auth_check_usecase.dart';
 import 'package:customer/domain/auth/usecases/login_usecase.dart';
+import 'package:customer/domain/cart/repository/cart.dart';
+import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
 import 'package:customer/domain/product/repository/product.dart';
 import 'package:customer/domain/product/usecases/product_details_usecase.dart';
 import 'package:customer/domain/shop/repository/shop.dart';
@@ -29,6 +34,8 @@ void setupServiceLocator() {
   _registerAddress();
   _registerShop();
   _registerProduct();
+  _registerCart();
+  sl.registerLazySingleton(() => CartRefreshService());
 }
 
 void _registerCore() {
@@ -159,6 +166,30 @@ void _registerProduct() {
   sl.registerLazySingleton<ProductDetailsUsecase>(
     () => ProductDetailsUsecase(
       productRepository: sl<ProductRepository>(),
+    ),
+  );
+}
+
+void _registerCart() {
+  // Data sources
+  sl.registerLazySingleton<CartApiService>(
+    () => CartApiServiceImpl(
+      dioClient: sl<DioClient>(),
+      sharedPreferences: sharedPref,
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<CartRepository>(
+    () => CartRepositoryImpl(
+      cartApiService: sl<CartApiService>(),
+    ),
+  );
+
+  // Use cases for cart list
+  sl.registerLazySingleton<CartListUsecase>(
+    () => CartListUsecase(
+      cartRepository: sl<CartRepository>(),
     ),
   );
 }

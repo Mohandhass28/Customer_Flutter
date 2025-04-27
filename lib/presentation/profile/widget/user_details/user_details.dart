@@ -1,5 +1,6 @@
 import 'package:customer/core/config/theme/app_color.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class UserDetails extends StatefulWidget {
   const UserDetails({super.key});
@@ -47,7 +48,9 @@ class _UserDetailsState extends State<UserDetails> {
                     0,
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/user-details');
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,

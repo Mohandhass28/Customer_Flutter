@@ -10,6 +10,10 @@ class PastOrdersPage extends StatefulWidget {
 class _PastOrdersPageState extends State<PastOrdersPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Past Orders"),
+      ),
+    );
   }
 }

@@ -3,10 +3,18 @@ import 'package:customer/presentation/auth/login/bloc/login_bloc.dart';
 import 'package:customer/presentation/auth/login/page/number_page.dart';
 import 'package:customer/presentation/auth/verify_otp/bloc/verify_otp_bloc.dart';
 import 'package:customer/presentation/auth/verify_otp/page/otp_page.dart';
+import 'package:customer/presentation/cart_details/page/cart_page.dart';
+import 'package:customer/presentation/profile/pages/about/page/about_page.dart';
+import 'package:customer/presentation/profile/pages/account_details/page/account_datails.dart';
 import 'package:customer/presentation/profile/pages/address_book/page/address_book_map_page.dart';
 import 'package:customer/presentation/profile/pages/address_book/page/address_book_page.dart';
 import 'package:customer/presentation/profile/pages/address_book/page/save_address_page.dart';
+import 'package:customer/presentation/profile/pages/help/page/help_page.dart';
+import 'package:customer/presentation/profile/pages/notification/page/notifications_page.dart';
+import 'package:customer/presentation/profile/pages/past_orders/page/past_orders_page.dart';
 import 'package:customer/presentation/profile/pages/profile.dart';
+import 'package:customer/presentation/profile/pages/user_details/user_details_page.dart';
+import 'package:customer/presentation/profile/pages/wallet/page/wallet_page.dart';
 import 'package:customer/presentation/shop_details/page/shop_details.dart';
 import 'package:customer/presentation/splash/page/splash_page.dart';
 import 'package:customer/presentation/tabs/page/bottom_tabs_page.dart';
@@ -129,6 +137,46 @@ class AppRoutesConfig {
             shopId: shopId['shopId'],
           );
         },
+      ),
+      GoRoute(
+        name: 'cart',
+        path: '/cart',
+        builder: (context, state) => const CartPage(),
+      ),
+      GoRoute(
+        name: 'user-details',
+        path: '/user-details',
+        builder: (context, state) => const UserDetailsPage(),
+      ),
+      GoRoute(
+        name: 'notifications',
+        path: '/notifications',
+        builder: (context, state) => const NotificationsPage(),
+      ),
+      GoRoute(
+        name: 'past-orders',
+        path: '/past-orders',
+        builder: (context, state) => const PastOrdersPage(),
+      ),
+      GoRoute(
+        name: 'help',
+        path: '/help',
+        builder: (context, state) => const HelpPage(),
+      ),
+      GoRoute(
+        name: 'wallet',
+        path: '/wallet',
+        builder: (context, state) => const WalletPage(),
+      ),
+      GoRoute(
+        name: 'address-details',
+        path: '/address-details',
+        builder: (context, state) => const AccountDatails(),
+      ),
+      GoRoute(
+        name: 'about',
+        path: '/about',
+        builder: (context, state) => const AboutPage(),
       ),
     ],
   );
