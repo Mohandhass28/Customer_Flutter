@@ -43,7 +43,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                     ),
                     child: Image.network(
                       widget.option.image,
-                      fit: BoxFit.fill,
+                      fit: BoxFit.contain,
                       height: 100,
                       width: 100,
                       errorBuilder: (context, error, stackTrace) {

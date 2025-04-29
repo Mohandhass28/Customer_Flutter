@@ -1,5 +1,7 @@
+import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/core/config/theme/app_color.dart';
 import 'package:customer/data/models/shop/shop_details/shop_details_model.dart';
+import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
 import 'package:customer/domain/shop/entities/shop_details/shop_details_params.dart';
 import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
 import 'package:customer/presentation/shop_details/bloc/shop_details_bloc.dart';
@@ -20,18 +22,22 @@ class ShopDetails extends StatefulWidget {
 class _ShopDetailsState extends State<ShopDetails> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ShopDetailsBloc(
-        shopDetailsUsecase: sl<ShopDetailsUsecase>(),
-      )..add(
-          GetShopDetailsEvent(
-            params: ShopDetailsParams(
-              shopId: widget.shopId,
-              latitude: 22.584761,
-              longitude: 88.473778,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ShopDetailsBloc>(
+          create: (context) => ShopDetailsBloc(
+            shopDetailsUsecase: sl<ShopDetailsUsecase>(),
+          )..add(
+              GetShopDetailsEvent(
+                params: ShopDetailsParams(
+                  shopId: widget.shopId,
+                  latitude: 22.584761,
+                  longitude: 88.473778,
+                ),
+              ),
             ),
-          ),
         ),
+      ],
       child: BlocConsumer<ShopDetailsBloc, ShopDetailsState>(
         listener: (context, state) {
           if (state.status == ShopDetailsStatus.failure) {
@@ -277,35 +283,111 @@ class _ShopDetailsState extends State<ShopDetails> {
                 ),
               ),
             ),
-            body: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        "Recommended",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              "Recommended",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount:
+                                state.shopDetails?.shopData.productList.length,
+                            shrinkWrap: true,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return ShopCard(
+                                productDetails: state.shopDetails?.shopData
+                                    .productList[index] as ProductModel,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return ShopCard(
-                          productDetails: state.shopDetails!.shopData
-                              .productList[index] as ProductModel,
+                ),
+                BlocProvider.value(
+                  value: sl<CartListBloc>(),
+                  child: BlocBuilder<CartListBloc, CartListState>(
+                    builder: (context, state) {
+                      if (state.status == CartListStatus.loading) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
                         );
-                      },
-                      childCount:
-                          state.shopDetails?.shopData.productList.length ?? 0,
-                    ),
+                      }
+                      if (state.cartList != null &&
+                          state.cartList!.cartData.isNotEmpty) {
+                        return GestureDetector(
+                          onTap: () {
+                            context.push('/cart');
+                          },
+                          child: Container(
+                            width: double
+                                .infinity, // Important: Provides width constraint
+                            height: 90, // Fixed height instead of constraints
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: const [0.2, 1],
+                                colors: const [
+                                  Color(0xFF016735),
+                                  Color(0xFF539472),
+                                ],
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 34, // Fixed height
+                                  width: 34, // Fixed width
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: const Icon(
+                                    Icons.shopping_cart,
+                                    size: 20,
+                                    color: AppColor.primaryColor,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Add items to worth ₹100",
+                                    style: TextStyle(
+                                      color: AppColor.richTextColor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      return Container();
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },

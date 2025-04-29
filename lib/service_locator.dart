@@ -1,3 +1,4 @@
+import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/core/bloc/default_address_header/bloc/address_header_bloc.dart';
 import 'package:customer/core/network/dio_client.dart';
 import 'package:customer/core/services/cart_refresh_service.dart';
@@ -190,6 +191,13 @@ void _registerCart() {
   sl.registerLazySingleton<CartListUsecase>(
     () => CartListUsecase(
       cartRepository: sl<CartRepository>(),
+    ),
+  );
+
+  // Use cases for cart list Bloc
+  sl.registerLazySingleton<CartListBloc>(
+    () => CartListBloc(
+      cartListUsecase: sl<CartListUsecase>(),
     ),
   );
 }

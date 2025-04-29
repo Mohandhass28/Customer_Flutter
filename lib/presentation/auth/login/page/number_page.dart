@@ -26,7 +26,25 @@ class _NumberPageState extends State<NumberPage> {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.status == LoginStatus.success) {
-          // Use GoRouter for navigation with path
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'OTP sent successfully OTP: ${state.sendOTPModel?.otp}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height - 100,
+                left: 10,
+                right: 10,
+              ),
+              duration: Duration(seconds: 3),
+            ),
+          );
           context.go(
             '/otp',
             extra: {

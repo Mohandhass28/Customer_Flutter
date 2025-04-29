@@ -40,69 +40,58 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
       body: MultiBlocProvider(
         providers: [
           BlocProvider<CartListBloc>(
-            create: (context) => CartListBloc(
-              cartListUsecase: sl<CartListUsecase>(),
-            )..add(GetCartListEvent()),
+            create: (context) => sl<CartListBloc>()
+              ..add(
+                GetCartListEvent(),
+              ),
           ),
         ],
         child: BlocBuilder<CartListBloc, CartListState>(
           builder: (context, state) {
             if (state.status == CartListStatus.loading) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
-            return Column(
-              children: [
-                Expanded(child: widget.child),
-                if (state.cartList != null &&
-                    state.cartList!.cartData.isNotEmpty)
-                  GestureDetector(
-                    onTapDown: (_) => setState(() => _opacity = 0.7),
-                    onTapUp: (_) => setState(() => _opacity = 1.0),
-                    onTapCancel: () => setState(() => _opacity = 1.0),
-                    onTap: () {
-                      context.push('/cart');
-                    },
-                    child: AnimatedOpacity(
-                      opacity: _opacity,
-                      duration: Duration(milliseconds: 200),
+            return SafeArea(
+              child: Column(
+                children: [
+                  Expanded(child: widget.child),
+                  if (state.cartList != null &&
+                      state.cartList!.cartData.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        context.push('/cart');
+                      },
                       child: Container(
-                        constraints: BoxConstraints(
-                          maxHeight: 90,
-                          minHeight: 90,
-                          minWidth: double.infinity,
-                        ),
+                        width: double
+                            .infinity, // Important: Provides width constraint
+                        height: 90, // Fixed height instead of constraints
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            stops: [0.2, 1],
-                            colors: [
-                              const Color(0xFF016735),
-                              const Color(0xFF539472),
+                            stops: const [0.2, 1],
+                            colors: const [
+                              Color(0xFF016735),
+                              Color(0xFF539472),
                             ],
                           ),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
+                              height: 34, // Fixed height
+                              width: 34, // Fixed width
                               padding: const EdgeInsets.all(8.0),
-                              alignment: Alignment.center,
-                              constraints: BoxConstraints(
-                                maxHeight: 34,
-                                maxWidth: 34,
-                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(100),
                               ),
-                              child: Icon(
-                                size: 20,
+                              child: const Icon(
                                 Icons.shopping_cart,
+                                size: 20,
                                 color: AppColor.primaryColor,
                               ),
                             ),
@@ -120,8 +109,8 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             );
           },
         ),
