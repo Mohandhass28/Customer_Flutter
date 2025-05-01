@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:customer/core/utils/index.dart';
 import 'package:customer/presentation/auth/login/bloc/login_bloc.dart';
 import 'package:customer/presentation/auth/login/widget/Button/index.dart';
 import 'package:flutter/material.dart';
@@ -26,26 +29,7 @@ class _NumberPageState extends State<NumberPage> {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.status == LoginStatus.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'OTP sent successfully OTP: ${state.sendOTPModel?.otp}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              margin: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height - 100,
-                left: 10,
-                right: 10,
-              ),
-              duration: Duration(seconds: 3),
-            ),
-          );
-          context.go(
+          context.push(
             '/otp',
             extra: {
               'number': _numberController.text,
@@ -126,14 +110,10 @@ class _NumberPageState extends State<NumberPage> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(
-                              left: 100,
-                              right: 100,
                               top: 20,
                             ),
-                            child: Container(
-                              constraints: BoxConstraints(
-                                maxWidth: 200,
-                              ),
+                            child: SizedBox(
+                              width: 200,
                               child: TextFormField(
                                 maxLength: 10,
                                 validator: (value) {
@@ -184,7 +164,7 @@ class _NumberPageState extends State<NumberPage> {
                           ),
                           SizedBox(height: 130),
                           Padding(
-                            padding: const EdgeInsets.only(left: 70, right: 70),
+                            padding: const EdgeInsets.only(left: 0, right: 0),
                             child: RichText(
                               textAlign: TextAlign.center,
                               text: const TextSpan(
@@ -203,7 +183,7 @@ class _NumberPageState extends State<NumberPage> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 70, right: 70),
+                            padding: const EdgeInsets.only(left: 0, right: 0),
                             child: RichText(
                               textAlign: TextAlign.center,
                               text: const TextSpan(

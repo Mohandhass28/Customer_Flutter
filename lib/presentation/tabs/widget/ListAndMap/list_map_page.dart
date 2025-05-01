@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:customer/core/config/theme/app_color.dart';
 import 'package:customer/presentation/tabs/widget/listView/list_view.dart';
 import 'package:customer/presentation/tabs/widget/map/map_page.dart';
@@ -12,16 +14,42 @@ class ListMapPage extends StatefulWidget {
 
 class _ListMapPageState extends State<ListMapPage> {
   bool shopMap = true;
+  final _searchDebounce = Duration(milliseconds: 3000);
+  Timer? _debounceTimer;
+  bool mapPan = false;
+
+  void _setInterval() {
+    if (_debounceTimer != null) {
+      _debounceTimer!.cancel();
+    }
+    _debounceTimer = Timer(_searchDebounce, () {
+      setState(() {
+        mapPan = false;
+      });
+    });
+  }
+
+  void _increaseMapHeight() {
+    setState(() {
+      mapPan = true;
+    });
+    _setInterval();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-        maxHeight: 400,
+        maxHeight: mapPan ? 600 : 400,
       ),
       child: Stack(
         children: [
-          shopMap ? MapPage() : _shopCardList(),
+          shopMap ? MapPage(onMapPan: _increaseMapHeight) : _shopCardList(),
           Positioned(
             bottom: 40,
             right: 40,
@@ -42,6 +70,7 @@ class _ListMapPageState extends State<ListMapPage> {
               ),
               child: shopMap
                   ? TextButton(
+                      style: TextButton.styleFrom(),
                       onPressed: () {
                         setState(() {
                           shopMap = false;
@@ -55,6 +84,7 @@ class _ListMapPageState extends State<ListMapPage> {
                       ),
                     )
                   : TextButton(
+                      style: TextButton.styleFrom(),
                       onPressed: () {
                         setState(() {
                           shopMap = true;
@@ -75,9 +105,12 @@ class _ListMapPageState extends State<ListMapPage> {
   }
 
   Widget _shopCardList() {
-    return SizedBox(
-      height: 400,
-      child: ListViewWidget(),
+    return Container(
+      margin: EdgeInsets.only(top: 60),
+      child: SizedBox(
+        height: 400,
+        child: ListViewWidget(),
+      ),
     );
   }
 }

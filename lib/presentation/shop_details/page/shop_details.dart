@@ -4,6 +4,7 @@ import 'package:customer/data/models/shop/shop_details/shop_details_model.dart';
 import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
 import 'package:customer/domain/shop/entities/shop_details/shop_details_params.dart';
 import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
+import 'package:customer/presentation/cart_details/widget/bill_summary/bloc/bill_summary_bloc.dart';
 import 'package:customer/presentation/shop_details/bloc/shop_details_bloc.dart';
 import 'package:customer/presentation/shop_details/widget/shop_card/shop_card.dart';
 import 'package:customer/service_locator.dart';
@@ -222,35 +223,37 @@ class _ShopDetailsState extends State<ShopDetails> {
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 2),
+                                      horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: AppColor.primaryColor,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    spacing: 10,
+                                    spacing: 6,
                                     children: [
                                       Text(
-                                        "0",
+                                        state.shopDetails?.shopData
+                                                .totalCount ??
+                                            "",
                                         style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                             color: Colors.white),
                                       ),
                                       Text(
                                         "Review",
                                         style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             color: Colors.white),
                                       ),
                                       Icon(
                                         Icons.star,
-                                        size: 12,
+                                        size: 13,
                                         color: Colors.white,
                                       ),
                                     ],
@@ -299,30 +302,52 @@ class _ShopDetailsState extends State<ShopDetails> {
                             child: Text(
                               "Recommended",
                               style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+                                  fontSize: 14, fontWeight: FontWeight.w500),
                             ),
                           ),
                         ),
                         Expanded(
-                          child: ListView.builder(
-                            itemCount:
-                                state.shopDetails?.shopData.productList.length,
-                            shrinkWrap: true,
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return ShopCard(
-                                productDetails: state.shopDetails?.shopData
-                                    .productList[index] as ProductModel,
-                              );
-                            },
-                          ),
+                          child: state.shopDetails?.shopData.productList
+                                      .isNotEmpty ==
+                                  true
+                              ? ListView.builder(
+                                  itemCount: state
+                                      .shopDetails?.shopData.productList.length,
+                                  shrinkWrap: true,
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    final product = state.shopDetails?.shopData
+                                        .productList[index];
+                                    if (product != null) {
+                                      return ShopCard(
+                                        productDetails: product as ProductModel,
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  },
+                                )
+                              : const Center(
+                                  child: Text("No products available"),
+                                ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                BlocProvider.value(
-                  value: sl<CartListBloc>(),
+                MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(
+                      value: sl<CartListBloc>(),
+                    ),
+                    BlocProvider.value(
+                      value: BillSummaryBloc(cartDetailsUsecase: sl())
+                        ..add(
+                          GetBillSummaryEvent(),
+                        ),
+                    ),
+                  ],
                   child: BlocBuilder<CartListBloc, CartListState>(
                     builder: (context, state) {
                       if (state.status == CartListStatus.loading) {
@@ -337,9 +362,8 @@ class _ShopDetailsState extends State<ShopDetails> {
                             context.push('/cart');
                           },
                           child: Container(
-                            width: double
-                                .infinity, // Important: Provides width constraint
-                            height: 90, // Fixed height instead of constraints
+                            width: double.infinity,
+                            height: 50,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
@@ -351,34 +375,26 @@ class _ShopDetailsState extends State<ShopDetails> {
                                 ],
                               ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  height: 34, // Fixed height
-                                  width: 34, // Fixed width
-                                  padding: const EdgeInsets.all(8.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(100),
-                                  ),
-                                  child: const Icon(
-                                    Icons.shopping_cart,
-                                    size: 20,
-                                    color: AppColor.primaryColor,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Add items to worth ₹100",
-                                    style: TextStyle(
-                                      color: AppColor.richTextColor,
-                                      fontSize: 14,
+                            child:
+                                BlocBuilder<BillSummaryBloc, BillSummaryState>(
+                              builder: (context, state) {
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Added items worth ${state.cartDetails?.cartDetails.finalAmount ?? 0}",
+                                        style: TextStyle(
+                                          color: AppColor.textColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ],
+                                  ],
+                                );
+                              },
                             ),
                           ),
                         );

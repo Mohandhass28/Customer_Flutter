@@ -56,6 +56,10 @@ dependencies:
   permission_handler: ^11.0.1
   geocoding: ^3.0.0
   rxdart: ^0.28.0
+  razorpay_flutter: ^1.4.0
+  google_maps_flutter: ^2.12.1
+  intl: ^0.19.0
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -102,7 +106,9 @@ flutter:
   assets:
     - .env
     - assets/images/
-    - assets/images/Ordalane.png # Make sure this exact file exists
+    - assets/images/orderlaneSellerIcon.png
+    - assets/images/CarouselImg.png
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

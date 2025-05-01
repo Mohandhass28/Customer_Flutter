@@ -35,5 +35,8 @@ class CartListState extends Equatable {
         status,
         errorMessage ?? '',
         cartList ?? '',
+        cartList?.cartData ?? '',
+        cartList?.cartData.length ?? '',
+        cartList?.cartData.isNotEmpty ?? '',
       ];
 }

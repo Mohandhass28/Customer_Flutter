@@ -13,6 +13,7 @@ class CartProductOptionEntity extends Equatable {
   final int cess;
   final String image;
   final int quantity;
+  final int product_id;
 
   const CartProductOptionEntity({
     required this.id,
@@ -27,6 +28,7 @@ class CartProductOptionEntity extends Equatable {
     required this.cess,
     required this.image,
     required this.quantity,
+    this.product_id = 0,
   });
 
   @override
@@ -43,5 +45,6 @@ class CartProductOptionEntity extends Equatable {
         cess,
         image,
         quantity,
+        product_id,
       ];
 }

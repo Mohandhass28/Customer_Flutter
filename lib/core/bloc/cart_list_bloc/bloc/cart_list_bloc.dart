@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:customer/core/services/cart_refresh_service.dart';
+import 'package:customer/data/models/cart/cart_list/cart_data_model.dart';
 import 'package:customer/data/models/cart/cart_list/cart_response_model.dart';
 import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
 import 'package:customer/service_locator.dart';
@@ -18,6 +19,7 @@ class CartListBloc extends Bloc<CartListEvent, CartListState> {
       : _cartListUsecase = cartListUsecase,
         super(CartListState()) {
     on<GetCartListEvent>(_getCartList);
+    on<UpdateCartListEvent>(_updateCartList);
 
     // Subscribe to refresh events
     _refreshSubscription = sl<CartRefreshService>()
@@ -51,5 +53,20 @@ class CartListBloc extends Bloc<CartListEvent, CartListState> {
         );
       },
     );
+  }
+
+  void _updateCartList(
+    UpdateCartListEvent event,
+    Emitter<CartListState> emit,
+  ) {
+    emit(state.copyWith(
+      status: CartListStatus.loading,
+    ));
+    emit(state.copyWith(
+      cartList: event.cartList,
+    ));
+    emit(state.copyWith(
+      status: CartListStatus.success,
+    ));
   }
 }

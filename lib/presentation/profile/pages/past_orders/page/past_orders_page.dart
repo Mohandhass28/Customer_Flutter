@@ -13,6 +13,7 @@ class _PastOrdersPageState extends State<PastOrdersPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Past Orders"),
+        centerTitle: true,
       ),
     );
   }

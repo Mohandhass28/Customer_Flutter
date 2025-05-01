@@ -1,3 +1,4 @@
+import 'package:customer/core/config/theme/app_color.dart';
 import 'package:flutter/material.dart';
 
 class Sections extends StatefulWidget {
@@ -24,10 +25,11 @@ class _SectionsState extends State<Sections> {
       margin: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         border: Border.all(
-          color: const Color.fromARGB(87, 158, 158, 158),
+          color: const Color.fromARGB(56, 158, 158, 158),
           width: 1,
           style: BorderStyle.solid,
         ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Opacity(
@@ -35,10 +37,13 @@ class _SectionsState extends State<Sections> {
         child: TextButton(
           onPressed: widget.onPressed,
           style: ButtonStyle(
+            overlayColor: MaterialStateProperty.all(
+              AppColor.primaryColor.withOpacity(0.1),
+            ),
             padding: WidgetStateProperty.all<EdgeInsets>(
               EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 20,
+                horizontal: 10,
+                vertical: 10,
               ),
             ),
             shape: WidgetStateProperty.all<RoundedRectangleBorder>(
@@ -56,33 +61,33 @@ class _SectionsState extends State<Sections> {
                 spacing: 14,
                 children: [
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 30,
+                    height: 30,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(172, 182, 182, 182),
+                      color: const Color.fromARGB(141, 184, 184, 184),
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Icon(
                       widget.icon,
-                      size: 24,
-                      color: Colors.black,
+                      size: 20,
+                      color: AppColor.primaryColor,
                     ),
                   ),
                   Text(
                     widget.text,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: const Color.fromARGB(227, 90, 88, 88),
                     ),
                   ),
                 ],
               ),
               Icon(
                 Icons.arrow_forward_ios,
-                size: 20,
-                color: Colors.black,
+                size: 16,
+                color: const Color.fromARGB(255, 115, 114, 114),
               )
             ],
           ),

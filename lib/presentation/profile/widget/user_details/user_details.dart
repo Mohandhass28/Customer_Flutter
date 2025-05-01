@@ -20,14 +20,14 @@ class _UserDetailsState extends State<UserDetails> {
           Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color.fromARGB(98, 33, 149, 243),
+              color: const Color.fromARGB(124, 169, 167, 167),
               borderRadius: BorderRadius.circular(100),
             ),
             padding: EdgeInsets.all(10),
             child: Icon(
               Icons.person,
               size: 50,
-              color: const Color.fromARGB(195, 33, 149, 243),
+              color: AppColor.primaryColor,
             ),
           ),
           Column(

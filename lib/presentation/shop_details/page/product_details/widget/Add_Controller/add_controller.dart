@@ -32,7 +32,7 @@ class _AddControllerState extends State<AddController> {
       ),
       constraints: BoxConstraints(
         maxHeight: 30,
-        maxWidth: 100,
+        maxWidth: 90,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -45,6 +45,7 @@ class _AddControllerState extends State<AddController> {
               icon: Icon(
                 Icons.remove,
                 color: AppColor.primaryColor,
+                size: 18,
               ),
               onPressed: widget.decrementOnPress,
             ),
@@ -61,6 +62,7 @@ class _AddControllerState extends State<AddController> {
               icon: Icon(
                 Icons.add,
                 color: AppColor.primaryColor,
+                size: 18,
               ),
               onPressed: widget.incrementOnPress,
             ),

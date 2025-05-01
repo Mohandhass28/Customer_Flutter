@@ -2,7 +2,14 @@ import 'package:customer/core/config/theme/app_color.dart';
 import 'package:flutter/material.dart';
 
 class Recommendedorfavoritetab extends StatefulWidget {
-  const Recommendedorfavoritetab({super.key});
+  Recommendedorfavoritetab({
+    super.key,
+    required this.activeTab,
+    required this.onTabChanged,
+  });
+
+  String activeTab;
+  final Function(String) onTabChanged;
 
   @override
   State<Recommendedorfavoritetab> createState() =>
@@ -10,8 +17,6 @@ class Recommendedorfavoritetab extends StatefulWidget {
 }
 
 class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
-  bool recommended = false;
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -19,16 +24,15 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
       children: [
         TextButton(
           onPressed: () {
-            setState(() {
-              recommended = !recommended;
-            });
+            widget.onTabChanged("Recommended");
           },
           child: Container(
-            constraints: BoxConstraints(minWidth: 150),
+            constraints: BoxConstraints(minWidth: 130),
             decoration: BoxDecoration(
               border: Border.all(
-                color:
-                    recommended ? AppColor.secondaryColor : Colors.transparent,
+                color: widget.activeTab == "Recommended"
+                    ? AppColor.secondaryColor
+                    : Colors.transparent,
                 width: 1,
                 style: BorderStyle.solid,
               ),
@@ -44,7 +48,11 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
               child: Text(
                 "Recommended",
                 style: TextStyle(
-                  color: recommended ? AppColor.secondaryColor : Colors.black,
+                  color: widget.activeTab == "Recommended"
+                      ? AppColor.primaryColor
+                      : Colors.black,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -52,16 +60,15 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
         ),
         TextButton(
           onPressed: () {
-            setState(() {
-              recommended = !recommended;
-            });
+            widget.onTabChanged("Favorites");
           },
           child: Container(
-            constraints: BoxConstraints(minWidth: 150),
+            constraints: BoxConstraints(minWidth: 130),
             decoration: BoxDecoration(
               border: Border.all(
-                color:
-                    !recommended ? AppColor.secondaryColor : Colors.transparent,
+                color: widget.activeTab == "Favorites"
+                    ? AppColor.primaryColor
+                    : Colors.transparent,
                 width: 1,
                 style: BorderStyle.solid,
               ),
@@ -75,9 +82,13 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
             ),
             child: Center(
               child: Text(
-                "Favorite",
+                "Favorites",
                 style: TextStyle(
-                  color: !recommended ? AppColor.secondaryColor : Colors.black,
+                  color: widget.activeTab == "Favorites"
+                      ? AppColor.primaryColor
+                      : Colors.black,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
                 ),
               ),
             ),

@@ -104,7 +104,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
               ),
               Container(
                 constraints: BoxConstraints(
-                  maxHeight: 100,
+                  maxHeight: 80,
                 ),
                 width: double.infinity,
                 decoration: BoxDecoration(

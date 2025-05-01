@@ -5,7 +5,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+  const MapPage({super.key, required this.onMapPan});
+
+  final Function() onMapPan;
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -57,6 +59,11 @@ class _MapPageState extends State<MapPage> {
         onTap: (tapPosition, point) => print(point),
         initialCenter: _currentPosition ?? const LatLng(0, 0),
         initialZoom: 15,
+        onMapEvent: (event) {
+          if (event is MapEventMove) {
+            widget.onMapPan();
+          }
+        },
       ),
       children: [
         TileLayer(

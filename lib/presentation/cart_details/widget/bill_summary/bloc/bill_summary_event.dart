@@ -6,3 +6,10 @@ sealed class BillSummaryEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class GetBillSummaryEvent extends BillSummaryEvent {
+  const GetBillSummaryEvent();
+
+  @override
+  List<Object> get props => [];
+}

@@ -1,6 +1,7 @@
 import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/core/bloc/default_address_header/bloc/address_header_bloc.dart';
 import 'package:customer/core/network/dio_client.dart';
+import 'package:customer/core/services/bill_summary_refresh_service.dart';
 import 'package:customer/core/services/cart_refresh_service.dart';
 import 'package:customer/data/repository/address/address.dart';
 import 'package:customer/data/repository/auth/auth.dart';
@@ -18,13 +19,18 @@ import 'package:customer/domain/address/usecases/get_default_address_usecase.dar
 import 'package:customer/domain/auth/repository/auth.dart';
 import 'package:customer/domain/auth/usecases/auth_check_usecase.dart';
 import 'package:customer/domain/auth/usecases/login_usecase.dart';
+import 'package:customer/domain/auth/usecases/logout_usecase.dart';
 import 'package:customer/domain/cart/repository/cart.dart';
+import 'package:customer/domain/cart/usecases/add_to_cart_usecase.dart';
+import 'package:customer/domain/cart/usecases/cart_details_usecase.dart';
 import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
+import 'package:customer/domain/cart/usecases/modify_cart_usecase.dart';
 import 'package:customer/domain/product/repository/product.dart';
 import 'package:customer/domain/product/usecases/product_details_usecase.dart';
 import 'package:customer/domain/shop/repository/shop.dart';
 import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
 import 'package:customer/main.dart';
+import 'package:customer/presentation/shop_details/page/product_details/bloc/add_to_cart/add_to_cart_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
@@ -36,7 +42,8 @@ void setupServiceLocator() {
   _registerShop();
   _registerProduct();
   _registerCart();
-  sl.registerLazySingleton(() => CartRefreshService());
+  _registerRefreshServiceForCart();
+  _registerRefreshServiceForBillSummary();
 }
 
 void _registerCore() {
@@ -74,6 +81,12 @@ void _registerAuth() {
 
   sl.registerLazySingleton<AuthCheckUseCase>(
     () => AuthCheckUseCase(
+      authRepository: sl<AuthRepository>(),
+    ),
+  );
+
+  sl.registerLazySingleton<LogoutUseCase>(
+    () => LogoutUseCase(
       authRepository: sl<AuthRepository>(),
     ),
   );
@@ -200,4 +213,33 @@ void _registerCart() {
       cartListUsecase: sl<CartListUsecase>(),
     ),
   );
+
+  // Use cases for cart details
+  sl.registerLazySingleton<CartDetailsUsecase>(
+    () => CartDetailsUsecase(
+      cartRepository: sl<CartRepository>(),
+    ),
+  );
+
+  // Use cases for add to cart
+  sl.registerLazySingleton<AddToCartUsecase>(
+    () => AddToCartUsecase(
+      cartRepository: sl<CartRepository>(),
+    ),
+  );
+
+  // Use cases for modify cart
+  sl.registerLazySingleton(
+    () => ModifyCartUsecase(
+      cartRepository: sl<CartRepository>(),
+    ),
+  );
+}
+
+void _registerRefreshServiceForCart() {
+  sl.registerLazySingleton(() => CartRefreshService());
+}
+
+void _registerRefreshServiceForBillSummary() {
+  sl.registerLazySingleton(() => BillSummaryRefreshService());
 }

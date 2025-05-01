@@ -8,11 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 late SharedPreferences sharedPref;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Hide status bar
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+      overlays: [SystemUiOverlay.bottom]);
+
   await dotenv.load(fileName: ".env");
   sharedPref = await SharedPreferences.getInstance();
   setupServiceLocator();

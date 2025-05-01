@@ -21,79 +21,103 @@ class _RecommendedCardPageState extends State<RecommendedCardPage> {
           'shopId': widget.shopListModel.id,
         });
       },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                width: 120,
-                height: 80,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: _buildImage(),
+      child: SizedBox(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                SizedBox(
+                  width: 110,
+                  height: 70,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: _buildImage(),
+                  ),
                 ),
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Center(
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        Icons.favorite,
-                        color: widget.shopListModel.isWishlist == 1
-                            ? Colors.red
-                            : Colors.grey,
-                        size: 14,
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Center(
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: () {},
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          Icons.favorite,
+                          color: widget.shopListModel.isWishlist == 1
+                              ? Colors.red
+                              : Colors.grey,
+                          size: 14,
+                        ),
+                        onPressed: () {},
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Text(
-            widget.shopListModel.shopName,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+              ],
             ),
-          ),
-          Text(
-              " ${widget.shopListModel.distance} ${widget.shopListModel.distanceIn}"),
-        ],
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                widget.shopListModel.shopName,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              " ${widget.shopListModel.distance} ${widget.shopListModel.distanceIn}",
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildImage() {
-    final bannerImage = widget.shopListModel.bannerImage;
+    final bannerImage = widget.shopListModel.bannerImage.isNotEmpty
+        ? widget.shopListModel.bannerImage
+        : widget.shopListModel.logo;
 
     if (bannerImage.isEmpty) {
       return Image.asset(
         AppImages.Seller_logo,
-        fit: BoxFit.fill,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.store, color: Colors.grey),
+          );
+        },
       );
     }
 
     return Image.network(
       bannerImage,
-      fit: BoxFit.fill,
+      fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Image.asset(
           AppImages.Seller_logo,
-          fit: BoxFit.fill,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[300],
+              child: const Icon(Icons.store, color: Colors.grey),
+            );
+          },
         );
       },
     );

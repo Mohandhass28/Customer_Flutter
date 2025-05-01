@@ -6,3 +6,14 @@ sealed class CartDetailsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class ModifyCartEvent extends CartDetailsEvent {
+  final AddToCartParams params;
+
+  const ModifyCartEvent({required this.params});
+
+  @override
+  List<Object> get props => [
+        params,
+      ];
+}

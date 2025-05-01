@@ -1,7 +1,7 @@
 import 'package:customer/common/models/cart/variant_add_cart.dart';
 import 'package:customer/common/models/index.dart';
 import 'package:customer/data/models/product/product_details/index.dart';
-import 'package:customer/presentation/shop_details/page/product_details/bloc/product_details_bloc.dart';
+import 'package:customer/presentation/shop_details/page/product_details/bloc/product_details/product_details_bloc.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Add_Controller/add_controller.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Option/bloc/option_bloc.dart';
 import 'package:flutter/material.dart';

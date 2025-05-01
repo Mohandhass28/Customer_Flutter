@@ -1,9 +1,14 @@
 import 'package:customer/domain/auth/usecases/login_usecase.dart';
+import 'package:customer/presentation/active_order/page/active_order_page.dart';
 import 'package:customer/presentation/auth/login/bloc/login_bloc.dart';
 import 'package:customer/presentation/auth/login/page/number_page.dart';
 import 'package:customer/presentation/auth/verify_otp/bloc/verify_otp_bloc.dart';
 import 'package:customer/presentation/auth/verify_otp/page/otp_page.dart';
+import 'package:customer/presentation/billing/page/blling_page.dart';
+import 'package:customer/presentation/billing/page/coupons/coupons_page.dart';
 import 'package:customer/presentation/cart_details/page/cart_page.dart';
+import 'package:customer/presentation/orders_details/page/info_page.dart';
+import 'package:customer/presentation/orders_details/page/order_details_page.dart';
 import 'package:customer/presentation/profile/pages/about/page/about_page.dart';
 import 'package:customer/presentation/profile/pages/account_details/page/account_datails.dart';
 import 'package:customer/presentation/profile/pages/address_book/page/address_book_map_page.dart';
@@ -177,6 +182,31 @@ class AppRoutesConfig {
         name: 'about',
         path: '/about',
         builder: (context, state) => const AboutPage(),
+      ),
+      GoRoute(
+        name: 'billing',
+        path: '/billing',
+        builder: (context, state) => const BllingPage(),
+      ),
+      GoRoute(
+        name: 'order-details',
+        path: '/order-details',
+        builder: (context, state) => const OrderDetailsPage(),
+      ),
+      GoRoute(
+        name: 'info',
+        path: '/info',
+        builder: (context, state) => const InfoPage(),
+      ),
+      GoRoute(
+        name: 'active-order',
+        path: '/active-order',
+        builder: (context, state) => const ActiveOrderPage(),
+      ),
+      GoRoute(
+        name: 'coupons',
+        path: '/coupons',
+        builder: (context, state) => const CouponsPage(),
       ),
     ],
   );

@@ -8,3 +8,12 @@ sealed class CartListEvent extends Equatable {
 }
 
 final class GetCartListEvent extends CartListEvent {}
+
+final class UpdateCartListEvent extends CartListEvent {
+  final CartResponseModel cartList;
+
+  const UpdateCartListEvent({required this.cartList});
+
+  @override
+  List<Object> get props => [cartList];
+}

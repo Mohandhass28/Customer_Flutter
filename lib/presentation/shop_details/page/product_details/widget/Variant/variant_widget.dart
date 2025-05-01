@@ -1,8 +1,10 @@
 import 'package:customer/common/models/cart/variant_add_cart.dart';
+import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/data/models/product/product_details/index.dart';
-import 'package:customer/presentation/shop_details/page/product_details/bloc/product_details_bloc.dart';
+import 'package:customer/presentation/shop_details/page/product_details/bloc/product_details/product_details_bloc.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Add_Controller/add_controller.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Variant/bloc/variant_bloc.dart';
+import 'package:customer/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,6 +19,11 @@ class VariantWidget extends StatefulWidget {
 
 class _VariantWidgetState extends State<VariantWidget> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final productDetailsBloc = context.read<ProductDetailsBloc>();
 
@@ -26,7 +33,6 @@ class _VariantWidgetState extends State<VariantWidget> {
           (element) => element.id == widget.variant.id,
           orElse: () => VariantAddCartModel(id: widget.variant.id, quantity: 0),
         );
-
         return Container(
           padding: const EdgeInsets.symmetric(
             vertical: 16,
@@ -37,21 +43,21 @@ class _VariantWidgetState extends State<VariantWidget> {
               Row(
                 children: [
                   Container(
-                    width: 100,
-                    height: 100,
+                    width: 60,
+                    height: 60,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Image.network(
                       widget.variant.image,
                       fit: BoxFit.contain,
-                      height: 100,
-                      width: 100,
+                      height: 60,
+                      width: 60,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
                           "assets/images/Seller_logo.png",
-                          height: 100,
-                          width: 100,
+                          height: 60,
+                          width: 60,
                           fit: BoxFit.contain,
                         );
                       },
@@ -61,8 +67,8 @@ class _VariantWidgetState extends State<VariantWidget> {
                   Text(
                     widget.variant.unit,
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -70,8 +76,8 @@ class _VariantWidgetState extends State<VariantWidget> {
               Text(
                 widget.variant.price,
                 style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               AddController(

@@ -9,4 +9,5 @@ abstract class AuthRepository {
   Future<Either<Failure, SendOTP>> sendOTP(SendOTPParams params);
   Future<Either<Failure, User>> verifyOTP(VerifyOtpParams params);
   Future<Either<Failure, bool>> authCheck();
+  Future<Either<Failure, bool>> logout();
 }

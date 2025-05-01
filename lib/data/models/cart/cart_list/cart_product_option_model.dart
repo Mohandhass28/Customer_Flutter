@@ -14,6 +14,7 @@ class CartProductOptionModel extends CartProductOptionEntity {
     required super.cess,
     required super.image,
     required super.quantity,
+    super.product_id,
   });
 
   factory CartProductOptionModel.fromJson(Map<String, dynamic> json) {
@@ -30,6 +31,39 @@ class CartProductOptionModel extends CartProductOptionEntity {
       cess: json['cess'] ?? 0,
       image: json['image'] ?? '',
       quantity: json['quantity'] ?? 0,
+      product_id: json['product_id'] ?? 0,
+    );
+  }
+
+  CartProductOptionModel copyWith({
+    int? id,
+    String? name,
+    double? price,
+    int? isDiscountedPrd,
+    double? slashPrice,
+    String? unit,
+    int? isTaxable,
+    int? cgst,
+    int? sgst,
+    int? cess,
+    String? image,
+    int? quantity,
+    int? product_id,
+  }) {
+    return CartProductOptionModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      isDiscountedPrd: isDiscountedPrd ?? this.isDiscountedPrd,
+      slashPrice: slashPrice ?? this.slashPrice,
+      unit: unit ?? this.unit,
+      isTaxable: isTaxable ?? this.isTaxable,
+      cgst: cgst ?? this.cgst,
+      sgst: sgst ?? this.sgst,
+      cess: cess ?? this.cess,
+      image: image ?? this.image,
+      quantity: quantity ?? this.quantity,
+      product_id: product_id ?? this.product_id,
     );
   }
 
@@ -47,6 +81,7 @@ class CartProductOptionModel extends CartProductOptionEntity {
       'cess': cess,
       'image': image,
       'quantity': quantity,
+      'product_id': product_id,
     };
   }
 }

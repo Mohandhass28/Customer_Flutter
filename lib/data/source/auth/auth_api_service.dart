@@ -14,6 +14,7 @@ abstract class AuthApiService {
   Future<Either<Failure, SendOTP>> sendOTP(SendOTPParams params);
   Future<Either<Failure, UserModel>> verifyOTP(VerifyOtpParams params);
   Future<Either<Failure, bool>> authCheck();
+  Future<Either<Failure, bool>> logout();
 }
 
 class AuthApiServiceImpl implements AuthApiService {
@@ -101,6 +102,16 @@ class AuthApiServiceImpl implements AuthApiService {
       }
 
       return Right(true);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> logout() async {
+    try {
+      await _sharedPreferences.remove('token');
+      return const Right(true);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

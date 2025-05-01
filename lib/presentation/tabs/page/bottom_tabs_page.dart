@@ -1,6 +1,8 @@
 import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/core/config/theme/app_color.dart';
+import 'package:customer/core/services/cart_refresh_service.dart';
 import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
+import 'package:customer/presentation/cart_details/widget/bill_summary/bloc/bill_summary_bloc.dart';
 import 'package:customer/presentation/tabs/page/grocery/page/grocery_page.dart';
 import 'package:customer/presentation/tabs/page/home/page/home_page.dart';
 import 'package:customer/service_locator.dart';
@@ -22,6 +24,14 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
   double _opacity = 1.0;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      sl<CartRefreshService>().refreshCart();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Determine the current index based on the location
     final location = GoRouterState.of(context).uri.path;
@@ -39,10 +49,14 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
     return Scaffold(
       body: MultiBlocProvider(
         providers: [
-          BlocProvider<CartListBloc>(
-            create: (context) => sl<CartListBloc>()
-              ..add(
-                GetCartListEvent(),
+          BlocProvider.value(
+            value: sl<CartListBloc>(),
+          ),
+          BlocProvider.value(
+            value: BillSummaryBloc(
+              cartDetailsUsecase: sl(),
+            )..add(
+                GetBillSummaryEvent(),
               ),
           ),
         ],
@@ -64,9 +78,8 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
                         context.push('/cart');
                       },
                       child: Container(
-                        width: double
-                            .infinity, // Important: Provides width constraint
-                        height: 90, // Fixed height instead of constraints
+                        width: double.infinity,
+                        height: 50,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
@@ -81,70 +94,112 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              height: 34, // Fixed height
-                              width: 34, // Fixed width
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(100),
-                              ),
-                              child: const Icon(
-                                Icons.shopping_cart,
-                                size: 20,
-                                color: AppColor.primaryColor,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "Add items to worth ₹100",
-                                style: TextStyle(
-                                  color: AppColor.richTextColor,
-                                  fontSize: 14,
-                                ),
-                              ),
+                            BlocBuilder<BillSummaryBloc, BillSummaryState>(
+                              builder: (context, bstate) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Added items worth ${bstate.cartDetails?.cartDetails.finalAmount ?? 0}",
+                                    style: TextStyle(
+                                      color: AppColor.textColor,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
                       ),
                     ),
+                  GestureDetector(
+                    onTap: () {
+                      context.push('/active-order');
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: const [0.2, 1],
+                          colors: const [
+                            Color(0xFF016735),
+                            Color(0xFF539472),
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Active Order",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             );
           },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          // Use GoRouter's path-based navigation
-          switch (index) {
-            case 0:
-              context.go('/home');
-              break;
-            case 1:
-              context.go('/grocery');
-              break;
-            case 2:
-              context.go('/food');
-              break;
-          }
-        },
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            selectedLabelStyle: TextStyle(fontSize: 12),
+            unselectedLabelStyle: TextStyle(fontSize: 12),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_grocery_store),
-            label: 'Grocery',
+        ),
+        child: Container(
+          height: 56, // Decrease overall height (default is usually 60-80)
+          child: BottomNavigationBar(
+            selectedItemColor: AppColor.primaryColor,
+            currentIndex: currentIndex,
+            unselectedItemColor: Colors.grey,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            elevation: 4,
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  context.go('/home');
+                  break;
+                case 1:
+                  context.go('/grocery');
+                  break;
+                case 2:
+                  context.go('/food');
+                  break;
+              }
+            },
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.local_grocery_store),
+                label: 'Grocery',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.food_bank),
+                label: 'Food',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.food_bank),
-            label: 'Food',
-          ),
-        ],
+        ),
       ),
     );
   }
