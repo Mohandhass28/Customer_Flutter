@@ -14,7 +14,6 @@ import 'package:customer/presentation/cart_details/widget/bill_summary/bloc/bill
 import 'package:customer/presentation/shop_details/page/product_details/widget/Add_Controller/add_controller.dart';
 import 'package:customer/service_locator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,6 +27,9 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   late BillSummaryBloc _billSummaryBloc;
   late CartDetailsBloc _cartDetailsBloc;
+  // Map to store product IDs and their original order
+  final Map<int, int> _productOrderMap = {};
+  int _orderCounter = 0;
 
   @override
   void initState() {
@@ -84,19 +86,42 @@ class _CartPageState extends State<CartPage> {
                         ),
                         BlocBuilder<CartListBloc, CartListState>(
                           builder: (context, state) {
+                            // Store the original order of products if not already stored
+                            if (state.cartList != null &&
+                                state.cartList!.cartData.isNotEmpty) {
+                              for (var product in state.cartList!.cartData) {
+                                if (!_productOrderMap.containsKey(product.id)) {
+                                  _productOrderMap[product.id] =
+                                      _orderCounter++;
+                                }
+                              }
+                            }
+
+                            // Create a sorted copy of the cart data based on the order map
+                            final sortedCartData = state.cartList != null
+                                ? List.from(state.cartList!.cartData)
+                                : [];
+
+                            if (sortedCartData.isNotEmpty) {
+                              sortedCartData.sort((a, b) {
+                                final orderA = _productOrderMap[a.id] ?? 999999;
+                                final orderB = _productOrderMap[b.id] ?? 999999;
+                                return orderA.compareTo(orderB);
+                              });
+                            }
+
                             return Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ...state.cartList!.cartData
+                                ...sortedCartData
                                     .map((productList) =>
                                         productList.productVariant)
-                                    .toList()
-                                    .map(
+                                    .map<Widget>(
                                   (variantList) {
                                     return Column(
                                       children: variantList
-                                          .map(
+                                          .map<Widget>(
                                             (varian) => Column(
                                               children: [
                                                 Container(
@@ -188,131 +213,121 @@ class _CartPageState extends State<CartPage> {
                                           .toList(),
                                     );
                                   },
-                                ).toList(),
-                                ...state.cartList!.cartData
-                                    .map(
-                                      (productList) {
-                                        return productList.productOptions;
-                                      },
-                                    )
-                                    .toList()
-                                    .map(
-                                      (optionsList) {
-                                        return Column(
-                                          children: optionsList.map(
-                                            (options) {
-                                              final parentProductList = state
-                                                  .cartList!.cartData
-                                                  .firstWhere(
-                                                (product) => product
-                                                    .productOptions
-                                                    .any((o) =>
-                                                        o.id ==
-                                                        optionsList.first.id),
-                                                orElse: () => state
-                                                    .cartList!
-                                                    .cartData
-                                                    .first as CartDataModel,
-                                              );
-                                              final product_Id =
-                                                  parentProductList
-                                                      .productDetails.id;
-                                              return Column(
-                                                children: [
-                                                  Container(
-                                                    margin: EdgeInsets.only(
-                                                        bottom: 20),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 10,
-                                                    ),
-                                                    child: Row(
+                                ),
+                                ...sortedCartData.map(
+                                  (productList) {
+                                    return productList.productOptions;
+                                  },
+                                ).map<Widget>(
+                                  (optionsList) {
+                                    return Column(
+                                      children: optionsList.map<Widget>(
+                                        (options) {
+                                          final parentProductList =
+                                              sortedCartData.firstWhere(
+                                            (product) => product.productOptions
+                                                .any((o) =>
+                                                    o.id ==
+                                                    optionsList.first.id),
+                                            orElse: () => sortedCartData.first
+                                                as CartDataModel,
+                                          );
+                                          final productId = parentProductList
+                                              .productDetails.id;
+                                          return Column(
+                                            children: [
+                                              Container(
+                                                margin:
+                                                    EdgeInsets.only(bottom: 20),
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 20,
+                                                  vertical: 10,
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Column(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
-                                                              .spaceBetween,
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
-                                                        Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              options.name
-                                                                      .isNotEmpty
-                                                                  ? options.name
-                                                                  : "No name",
-                                                            ),
-                                                            Text(
-                                                              "₹${options.price}",
-                                                            ),
-                                                          ],
+                                                        Text(
+                                                          options.name
+                                                                  .isNotEmpty
+                                                              ? options.name
+                                                              : "No name",
                                                         ),
-                                                        AddController(
-                                                          id: options.id,
-                                                          quantity:
-                                                              options.quantity,
-                                                          decrementOnPress: () {
-                                                            _cartDetailsBloc
-                                                                .add(
-                                                              ModifyCartEvent(
-                                                                params:
-                                                                    AddToCartParams(
-                                                                  productId:
-                                                                      product_Id,
-                                                                  variantAddCartModel: [],
-                                                                  optionAddCartModel: [
-                                                                    OptionAddCartModel(
-                                                                      id: options
-                                                                          .id,
-                                                                      quantity: options.quantity >
-                                                                              0
-                                                                          ? options.quantity -
-                                                                              1
-                                                                          : 0,
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
-                                                          incrementOnPress: () {
-                                                            _cartDetailsBloc
-                                                                .add(
-                                                              ModifyCartEvent(
-                                                                params:
-                                                                    AddToCartParams(
-                                                                  productId:
-                                                                      product_Id,
-                                                                  variantAddCartModel: [],
-                                                                  optionAddCartModel: [
-                                                                    OptionAddCartModel(
-                                                                      id: options
-                                                                          .id,
-                                                                      quantity:
-                                                                          options.quantity +
-                                                                              1,
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
+                                                        Text(
+                                                          "₹${options.price}",
                                                         ),
                                                       ],
                                                     ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          ).toList(),
-                                        );
-                                      },
-                                    )
-                                    .toList(),
+                                                    AddController(
+                                                      id: options.id,
+                                                      quantity:
+                                                          options.quantity,
+                                                      decrementOnPress: () {
+                                                        _cartDetailsBloc.add(
+                                                          ModifyCartEvent(
+                                                            params:
+                                                                AddToCartParams(
+                                                              productId:
+                                                                  productId,
+                                                              variantAddCartModel: [],
+                                                              optionAddCartModel: [
+                                                                OptionAddCartModel(
+                                                                  id: options
+                                                                      .id,
+                                                                  quantity: options
+                                                                              .quantity >
+                                                                          0
+                                                                      ? options
+                                                                              .quantity -
+                                                                          1
+                                                                      : 0,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      incrementOnPress: () {
+                                                        _cartDetailsBloc.add(
+                                                          ModifyCartEvent(
+                                                            params:
+                                                                AddToCartParams(
+                                                              productId:
+                                                                  productId,
+                                                              variantAddCartModel: [],
+                                                              optionAddCartModel: [
+                                                                OptionAddCartModel(
+                                                                  id: options
+                                                                      .id,
+                                                                  quantity:
+                                                                      options.quantity +
+                                                                          1,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ).toList(),
+                                    );
+                                  },
+                                ),
                                 BlocProvider.value(
                                   value: _billSummaryBloc,
                                   child: BillSummary(),
@@ -357,7 +372,6 @@ class _CartPageState extends State<CartPage> {
                                             bottom: 5,
                                           ),
                                           child: Row(
-                                            spacing: 10,
                                             children: [
                                               Text(
                                                 "+",
@@ -367,6 +381,7 @@ class _CartPageState extends State<CartPage> {
                                                   color: AppColor.primaryColor,
                                                 ),
                                               ),
+                                              SizedBox(width: 10),
                                               Text(
                                                 "You saved ₹15 off on delivery",
                                                 style: TextStyle(
@@ -424,10 +439,10 @@ class _CartPageState extends State<CartPage> {
                                                       .spaceBetween,
                                               children: [
                                                 Row(
-                                                  spacing: 10,
                                                   children: [
                                                     Icon(Icons.payment,
                                                         size: 20),
+                                                    SizedBox(width: 10),
                                                     Text(
                                                       "View all pyment coupons",
                                                       style: TextStyle(
@@ -487,7 +502,6 @@ class _CartPageState extends State<CartPage> {
                                                           .spaceBetween,
                                                   children: [
                                                     Row(
-                                                      spacing: 10,
                                                       children: [
                                                         Icon(
                                                           Icons.point_of_sale,
@@ -496,6 +510,7 @@ class _CartPageState extends State<CartPage> {
                                                               .fromARGB(255,
                                                               105, 105, 105),
                                                         ),
+                                                        SizedBox(width: 10),
                                                         Text(
                                                           "Apply referral code if any",
                                                           style: TextStyle(
@@ -645,13 +660,13 @@ class _CartPageState extends State<CartPage> {
                                                   padding: const EdgeInsets
                                                       .symmetric(vertical: 10),
                                                   child: Row(
-                                                    spacing: 10,
                                                     children: [
                                                       Icon(
                                                         Icons.home_outlined,
                                                         size: 20,
                                                         color: Colors.black,
                                                       ),
+                                                      SizedBox(width: 10),
                                                       Text(
                                                         "Delivery at home \nPlease select address",
                                                         style: TextStyle(
@@ -715,13 +730,13 @@ class _CartPageState extends State<CartPage> {
                                                   padding: const EdgeInsets
                                                       .symmetric(vertical: 10),
                                                   child: Row(
-                                                    spacing: 10,
                                                     children: [
                                                       Icon(
                                                         Icons.phone_outlined,
                                                         size: 20,
                                                         color: Colors.black,
                                                       ),
+                                                      SizedBox(width: 10),
                                                       Text(
                                                         "+91993337889",
                                                         style: TextStyle(
@@ -851,7 +866,7 @@ class _CartPageState extends State<CartPage> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: 200,
           child: Center(
             child: Text('This is the bottom sheet content'),
@@ -865,7 +880,7 @@ class _CartPageState extends State<CartPage> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: 200,
           child: Center(
             child: Text('This is the bottom sheet content'),

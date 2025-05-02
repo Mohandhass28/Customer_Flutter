@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class _ProductDetailsPopup extends StatefulWidget {
-  const _ProductDetailsPopup({super.key});
+  const _ProductDetailsPopup();
 
   @override
   State<_ProductDetailsPopup> createState() => ProductDetails();
@@ -31,7 +31,7 @@ class _ProductDetailsPopup extends StatefulWidget {
 class ProductDetails extends State<_ProductDetailsPopup> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold();
+    return const SizedBox.shrink();
   }
 
   void showAddToCartBottomSheet(
