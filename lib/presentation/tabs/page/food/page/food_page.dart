@@ -157,6 +157,7 @@ class _FoodPageState extends State<FoodPage> {
                           padding: EdgeInsets.only(right: 16),
                           child: RecommendedCardPage(
                             shopListModel: state.shopList![index],
+                            homeBloc: _homeBloc,
                           ),
                         );
                       },

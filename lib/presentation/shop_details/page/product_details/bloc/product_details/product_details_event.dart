@@ -23,3 +23,13 @@ class UpdateTotalPriceEvent extends ProductDetailsEvent {
   @override
   List<Object> get props => [totalPrice];
 }
+
+class WishProductListEvent extends ProductDetailsEvent {
+  final int productId;
+  final int isWishlist;
+  const WishProductListEvent(
+      {required this.productId, required this.isWishlist});
+
+  @override
+  List<Object> get props => [];
+}

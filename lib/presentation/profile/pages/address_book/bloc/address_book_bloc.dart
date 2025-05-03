@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
+import 'package:customer/core/refresh_services/address/address_refresh_service.dart';
 import 'package:customer/domain/address/entities/address_param.dart';
 import 'package:customer/domain/address/entities/create_address_entity.dart';
 import 'package:customer/domain/address/usecases/get_adderss_list_usecase.dart';
+import 'package:customer/service_locator.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../../data/models/address/address_model.dart';
@@ -76,6 +78,8 @@ class AddressBookBloc extends Bloc<AddressBookEvent, AddressList> {
             status: AddressBookStatus.success,
           ),
         );
+        add(GetAddressListEvent(addressParam: AddressParam(searchValue: "")));
+        sl<AddressRefreshService>().refreshAddress();
       },
     );
   }

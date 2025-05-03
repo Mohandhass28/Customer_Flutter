@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:customer/core/services/bill_summary_refresh_service.dart';
-import 'package:customer/core/services/cart_refresh_service.dart';
+import 'package:customer/core/refresh_services/bill_summary_refresh_service.dart';
+import 'package:customer/core/refresh_services/cart_refresh_service.dart';
 import 'package:customer/data/models/cart/cart_details/cart_response_model.dart';
 import 'package:customer/domain/cart/usecases/cart_details_usecase.dart';
 import 'package:customer/service_locator.dart';

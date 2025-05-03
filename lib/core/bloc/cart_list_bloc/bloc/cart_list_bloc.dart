@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:customer/core/services/cart_refresh_service.dart';
+import 'package:customer/core/refresh_services/cart_refresh_service.dart';
 import 'package:customer/data/models/cart/cart_list/cart_data_model.dart';
 import 'package:customer/data/models/cart/cart_list/cart_response_model.dart';
 import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';

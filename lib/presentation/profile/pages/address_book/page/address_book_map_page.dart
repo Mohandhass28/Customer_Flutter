@@ -169,10 +169,9 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        minimumSize: Size(20, 30),
                       ),
                     ),
                   ),
@@ -192,8 +191,8 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
             ],
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
@@ -227,7 +226,7 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
                     ],
                   )
                 : Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.symmetric(vertical: 4),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -249,7 +248,7 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
                   ),
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
@@ -285,7 +284,8 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColor.secondaryColor,
+                backgroundColor: AppColor.primaryColor,
+                minimumSize: Size(double.infinity, 45),
                 padding: EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -344,7 +344,7 @@ class _AddressBookMapPageState extends State<AddressBookMapPage> {
 
   Widget _map() {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.65,
+      height: MediaQuery.of(context).size.height * 0.70,
       child: FlutterMap(
         mapController: _mapController,
         options: MapOptions(

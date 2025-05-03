@@ -1,12 +1,21 @@
 import 'package:customer/core/bloc/default_address_header/bloc/address_header_bloc.dart';
 import 'package:customer/core/config/assets/app_images.dart';
 import 'package:customer/core/config/theme/app_color.dart';
+import 'package:customer/core/refresh_services/address/address_refresh_service.dart';
+import 'package:customer/data/models/address/create_address_model.dart';
+import 'package:customer/domain/address/entities/create_address_entity.dart';
+import 'package:customer/domain/address/usecases/get_adderss_list_usecase.dart';
 import 'package:customer/domain/address/usecases/get_default_address_usecase.dart';
+import 'package:customer/presentation/tabs/bloc/tabs_bloc.dart';
 import 'package:customer/service_locator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HeaderWidget extends StatefulWidget {
   const HeaderWidget({super.key});
@@ -16,6 +25,100 @@ class HeaderWidget extends StatefulWidget {
 }
 
 class _HeaderWidgetState extends State<HeaderWidget> {
+  bool _isLoadingAddress = false;
+  LatLng? _currentPosition;
+  late TabsBloc _tabsBloc;
+  bool isCalled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+    _tabsBloc = TabsBloc(addressusace: sl<AddressListUseCase>());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    // Request location permission
+    final status = await Permission.location.request();
+
+    if (status.isGranted) {
+      try {
+        // Get current position
+        final position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+
+        setState(() {
+          _currentPosition = LatLng(position.latitude, position.longitude);
+        });
+      } catch (e) {
+        print("Error getting location: $e");
+      }
+    } else {
+      print("Location permission denied");
+    }
+  }
+
+  Future<String> getAddressFromLatLng(double latitude, double longitude) async {
+    String addressText = "";
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      print('Placemarks: $placemarks');
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+
+        // Use null-aware operators to prevent null issues
+        String address = '${place.street ?? ''}, '
+            '${place.subLocality ?? ''}, '
+            '${place.locality ?? ''}, '
+            '${place.administrativeArea ?? ''}, '
+            '${place.country ?? ''}';
+
+        print('Address: $address');
+        addressText = address;
+        _isLoadingAddress = false;
+      } else {
+        print('No placemarks found for this location.');
+      }
+    } catch (e, stackTrace) {
+      print('Error: $e');
+      print('StackTrace: $stackTrace');
+      addressText = "Unknown Address";
+      _isLoadingAddress = false;
+    }
+    return addressText;
+  }
+
+  Future<void> setDefaultAddress() async {
+    if (_currentPosition != null) {
+      final address = await getAddressFromLatLng(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
+      _tabsBloc.add(
+        setDefaultAddressEvent(
+          params: CreateAddressModel(
+            type: "Home",
+            receiverName: "Customer",
+            receiverContact: 1234123412,
+            address: address,
+            latitude: _currentPosition!.latitude.toString(),
+            longitude: _currentPosition!.longitude.toString(),
+            areaSector: "Home",
+            isDefault: 1,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -25,27 +128,16 @@ class _HeaderWidgetState extends State<HeaderWidget> {
       child: BlocConsumer<AddressHeaderBloc, AddressHeaderState>(
         listener: (context, state) {
           if (state.status == AddressHeaderStatus.success) {}
-          if (state.status == AddressHeaderStatus.failure) {
-            // ScaffoldMessenger.of(context).showSnackBar(
-            //   SnackBar(
-            //     content: Text(
-            //       state.errorMessage ?? 'Unknown error',
-            //       style: TextStyle(
-            //         color: Colors.white,
-            //         fontSize: 16,
-            //       ),
-            //     ),
-            //     backgroundColor: Colors.red,
-            //     behavior: SnackBarBehavior.floating,
-            //     margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            //     duration: Duration(seconds: 3),
-            //   ),
-            // );
-          }
+          if (state.status == AddressHeaderStatus.failure) {}
         },
         builder: (context, state) {
-          // Use debugPrint for development logging
           debugPrint("Address state: ${state.address}");
+          debugPrint("state: ${state.status}");
+          if (state.address == null && !isCalled) {
+            setDefaultAddress();
+            isCalled = true;
+          }
+
           return Column(
             children: [
               Container(
@@ -104,7 +196,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
               ),
               Container(
                 constraints: BoxConstraints(
-                  maxHeight: 80,
+                  maxHeight: 90,
                 ),
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -162,6 +254,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                             color: Colors.white,
                             fontSize: 14,
                           ),
+                          maxLines: 2,
                         ),
                       ],
                     )

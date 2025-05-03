@@ -1,4 +1,4 @@
-import 'package:customer/core/services/cart_refresh_service.dart';
+import 'package:customer/core/refresh_services/cart_refresh_service.dart';
 import 'package:customer/domain/cart/usecases/cart_details_usecase.dart';
 import 'package:customer/presentation/cart_details/widget/bill_summary/bloc/bill_summary_bloc.dart';
 import 'package:customer/presentation/cart_details/widget/bill_summary/widget/shimmer_bill_summary.dart';

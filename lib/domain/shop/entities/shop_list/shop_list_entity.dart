@@ -11,7 +11,7 @@ class ShopListEntity extends Equatable {
   final String distanceIn;
   final String deliveryTime;
   final int isWishlist;
-  final int avgRating;
+  final double avgRating;
   final String totalCount;
   final List<dynamic> productCategory;
   final bool shopStatus;

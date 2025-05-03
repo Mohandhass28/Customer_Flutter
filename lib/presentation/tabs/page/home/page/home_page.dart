@@ -37,6 +37,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _debounceTimer?.cancel();
+    _homeBloc.close();
     _searchController.dispose();
     super.dispose();
   }
@@ -77,11 +80,10 @@ class _HomePageState extends State<HomePage> {
         ..add(
           GetShopListEvent(
             params: ShopListParams(
-              latitude: 22.584761,
-              longitude: 88.473778,
-              searchValue: "",
-              type: "",
-            ),
+                type: "food", //food, grocery
+                latitude: 22.584761,
+                searchValue: "",
+                longitude: 88.473778),
           ),
         ),
       child: BlocConsumer<HomeBloc, HomeState>(
@@ -157,6 +159,7 @@ class _HomePageState extends State<HomePage> {
                           padding: EdgeInsets.only(right: 16),
                           child: RecommendedCardPage(
                             shopListModel: state.shopList![index],
+                            homeBloc: _homeBloc,
                           ),
                         );
                       },

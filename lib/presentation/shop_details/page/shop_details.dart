@@ -62,8 +62,75 @@ class _ShopDetailsState extends State<ShopDetails> {
         builder: (context, state) {
           if (state.status == ShopDetailsStatus.loading) {
             return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => context.pop(),
+                ),
+                title: Text("Loading Shop Details"),
+              ),
               body: Center(
-                child: CircularProgressIndicator(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text("Loading shop details..."),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          if (state.status == ShopDetailsStatus.failure) {
+            return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => context.pop(),
+                ),
+                title: Text("Error"),
+              ),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      "Failed to load shop details",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      state.errorMessage ?? "Unknown error",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                    SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<ShopDetailsBloc>().add(
+                              GetShopDetailsEvent(
+                                params: ShopDetailsParams(
+                                  shopId: widget.shopId,
+                                  latitude: 22.584761,
+                                  longitude: 88.473778,
+                                ),
+                              ),
+                            );
+                      },
+                      child: Text("Retry"),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -296,14 +363,12 @@ class _ShopDetailsState extends State<ShopDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Container(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Text(
-                              "Recommended",
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500),
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            "Recommended",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
                         Expanded(
@@ -342,7 +407,7 @@ class _ShopDetailsState extends State<ShopDetails> {
                       value: sl<CartListBloc>(),
                     ),
                     BlocProvider.value(
-                      value: BillSummaryBloc(cartDetailsUsecase: sl())
+                      value: sl<BillSummaryBloc>()
                         ..add(
                           GetBillSummaryEvent(),
                         ),
@@ -384,7 +449,7 @@ class _ShopDetailsState extends State<ShopDetails> {
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        "Added items worth ${state.cartDetails?.cartDetails.finalAmount ?? 0}",
+                                        "₹${state.cartDetails?.cartDetails.finalAmount ?? 0}",
                                         style: TextStyle(
                                           color: AppColor.textColor,
                                           fontSize: 15,

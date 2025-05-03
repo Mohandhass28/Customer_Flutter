@@ -5,6 +5,8 @@ import 'package:customer/domain/shop/entities/shop_details/shop_details_entity.d
 import 'package:customer/domain/shop/entities/shop_details/shop_details_params.dart';
 import 'package:customer/domain/shop/entities/shop_list/shop_list_entity.dart';
 import 'package:customer/domain/shop/entities/shop_list/shop_list_params.dart';
+import 'package:customer/domain/shop/entities/wish_list_param.dart';
+import 'package:customer/domain/shop/entities/wish_list_responce.dart';
 import 'package:customer/domain/shop/repository/shop.dart';
 import 'package:dartz/dartz.dart';
 
@@ -23,5 +25,11 @@ class ShopRepositoryImpl implements ShopRepository {
   Future<Either<Failure, ShopDetailsResponseEntity>> getShopDetails(
       ShopDetailsParams params) async {
     return await _shopApiService.getShopDetails(params);
+  }
+
+  @override
+  Future<Either<Failure, WishListResponse>> addRemoveShopWishlist(
+      WishListParams params) async {
+    return await _shopApiService.addRemoveShopWishlist(params);
   }
 }

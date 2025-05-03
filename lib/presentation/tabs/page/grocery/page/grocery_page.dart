@@ -155,6 +155,7 @@ class _GroceryPageState extends State<GroceryPage> {
                           padding: EdgeInsets.only(right: 16),
                           child: RecommendedCardPage(
                             shopListModel: state.shopList![index],
+                            homeBloc: _homeBloc,
                           ),
                         );
                       },

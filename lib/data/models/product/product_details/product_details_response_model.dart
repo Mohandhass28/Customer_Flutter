@@ -16,6 +16,18 @@ class ProductDetailsResponseModel extends ProductDetailsResponseEntity {
     );
   }
 
+  ProductDetailsResponseModel copyWith({
+    int? status,
+    ProductDataModel? productData,
+    String? msg,
+  }) {
+    return ProductDetailsResponseModel(
+      status: status ?? this.status,
+      productData: productData ?? this.productData,
+      msg: msg ?? this.msg,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'status': status,

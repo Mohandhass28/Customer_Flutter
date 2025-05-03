@@ -1,6 +1,6 @@
 import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/core/config/theme/app_color.dart';
-import 'package:customer/core/services/cart_refresh_service.dart';
+import 'package:customer/core/refresh_services/cart_refresh_service.dart';
 import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
 import 'package:customer/presentation/cart_details/widget/bill_summary/bloc/bill_summary_bloc.dart';
 import 'package:customer/presentation/tabs/page/grocery/page/grocery_page.dart';
@@ -53,9 +53,8 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
             value: sl<CartListBloc>(),
           ),
           BlocProvider.value(
-            value: BillSummaryBloc(
-              cartDetailsUsecase: sl(),
-            )..add(
+            value: sl<BillSummaryBloc>()
+              ..add(
                 GetBillSummaryEvent(),
               ),
           ),
@@ -99,7 +98,7 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
                                 return Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    "Added items worth ${bstate.cartDetails?.cartDetails.finalAmount ?? 0}",
+                                    "₹${bstate.cartDetails?.cartDetails.finalAmount ?? 0}",
                                     style: TextStyle(
                                       color: AppColor.textColor,
                                       fontSize: 15,
@@ -162,43 +161,40 @@ class _BottomTabsPageState extends State<BottomTabsPage> {
             unselectedLabelStyle: TextStyle(fontSize: 12),
           ),
         ),
-        child: Container(
-          height: 56, // Decrease overall height (default is usually 60-80)
-          child: BottomNavigationBar(
-            selectedItemColor: AppColor.primaryColor,
-            currentIndex: currentIndex,
-            unselectedItemColor: Colors.grey,
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.white,
-            elevation: 4,
-            onTap: (index) {
-              switch (index) {
-                case 0:
-                  context.go('/home');
-                  break;
-                case 1:
-                  context.go('/grocery');
-                  break;
-                case 2:
-                  context.go('/food');
-                  break;
-              }
-            },
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.local_grocery_store),
-                label: 'Grocery',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.food_bank),
-                label: 'Food',
-              ),
-            ],
-          ),
+        child: BottomNavigationBar(
+          selectedItemColor: AppColor.primaryColor,
+          currentIndex: currentIndex,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          elevation: 4,
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                context.go('/home');
+                break;
+              case 1:
+                context.go('/grocery');
+                break;
+              case 2:
+                context.go('/food');
+                break;
+            }
+          },
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.local_grocery_store),
+              label: 'Grocery',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.food_bank),
+              label: 'Food',
+            ),
+          ],
         ),
       ),
     );

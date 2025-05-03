@@ -23,6 +23,11 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         TextButton(
+          style: ButtonStyle(
+            padding: WidgetStateProperty.all<EdgeInsets>(
+              EdgeInsets.zero,
+            ),
+          ),
           onPressed: () {
             widget.onTabChanged("Recommended");
           },
@@ -36,7 +41,10 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
                 width: 1,
                 style: BorderStyle.solid,
               ),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8),
+                bottomLeft: Radius.circular(8),
+              ),
             ),
             padding: EdgeInsets.only(
               right: 15,
@@ -62,6 +70,11 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
           onPressed: () {
             widget.onTabChanged("Favorites");
           },
+          style: ButtonStyle(
+            padding: WidgetStateProperty.all<EdgeInsets>(
+              EdgeInsets.zero,
+            ),
+          ),
           child: Container(
             constraints: BoxConstraints(minWidth: 130),
             decoration: BoxDecoration(
@@ -72,7 +85,10 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
                 width: 1,
                 style: BorderStyle.solid,
               ),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(8),
+                bottomRight: Radius.circular(8),
+              ),
             ),
             padding: EdgeInsets.only(
               right: 15,

@@ -14,3 +14,12 @@ class GetShopListEvent extends HomeEvent {
   @override
   List<Object> get props => [];
 }
+
+class AddRemoveShopWishlist extends HomeEvent {
+  final int shopId;
+  final int isWishlist;
+  const AddRemoveShopWishlist({required this.shopId, required this.isWishlist});
+
+  @override
+  List<Object> get props => [];
+}

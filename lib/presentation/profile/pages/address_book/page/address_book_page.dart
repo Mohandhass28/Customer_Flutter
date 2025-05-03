@@ -23,8 +23,10 @@ class AddressBookContent extends StatelessWidget {
   final bool fromHome;
   final TextEditingController searchController;
   final Function() onSearchChanged;
+  final Map<int, int> _productOrderMap = {};
+  int _orderCounter = 0;
 
-  const AddressBookContent({
+  AddressBookContent({
     super.key,
     required this.fromHome,
     required this.searchController,
@@ -33,173 +35,182 @@ class AddressBookContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AddressBookBloc, AddressList>(
-      listener: (context, state) {
-        if (state.status == AddressBookStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                state.errorMessage ?? 'Unknown error',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              duration: Duration(seconds: 4),
-            ),
-          );
-        }
-      },
-      builder: (context, state) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                controller: searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search here...',
-                  prefixIcon: Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.clear),
-                    onPressed: () {
-                      searchController.clear();
-                      // The listener will handle the search
-                    },
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColor.secondaryColor),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                onChanged: (value) {
-                  // Manually trigger search in parent widget
-                  onSearchChanged();
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: 'Search here...',
+              prefixIcon: Icon(Icons.search),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.clear),
+                onPressed: () {
+                  searchController.clear();
+                  // The listener will handle the search
                 },
               ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.white),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.white),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppColor.secondaryColor),
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
-            if (state.status == AddressBookStatus.loading)
-              Center(child: CircularProgressIndicator()),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                margin: EdgeInsets.only(left: 17),
-                child: TextButton.icon(
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  ),
-                  onPressed: () {
-                    context.push('/address-book-map');
-                  },
-                  label: Text(
-                    "Add New Address",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  icon: Icon(
-                    Icons.location_searching,
-                    color: AppColor.secondaryColor,
-                  ),
+            onChanged: (value) {
+              // Manually trigger search in parent widget
+              onSearchChanged();
+            },
+          ),
+        ),
+        Card(
+          margin: EdgeInsets.symmetric(
+            horizontal: 16,
+          ),
+          child: InkWell(
+            onTap: () {
+              context.push('/address-book-map');
+            },
+            child: ListTile(
+              leading: const Icon(
+                Icons.location_on,
+                color: AppColor.secondaryColor,
+              ),
+              title: Text(
+                "Add New Address",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
                 ),
               ),
             ),
-            Expanded(
-              child: state.addressList.isEmpty
-                  ? Center(
-                      child: Text(
-                        state.status == AddressBookStatus.success
-                            ? "No addresses found"
-                            : "",
-                        style: TextStyle(fontSize: 16),
+          ),
+        ),
+        Expanded(
+          child: BlocConsumer<AddressBookBloc, AddressList>(
+            listener: (context, state) {
+              if (state.status == AddressBookStatus.failure) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.errorMessage ?? 'Unknown error',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: state.addressList.length,
-                      itemBuilder: (context, index) {
-                        final address = state.addressList[index];
-                        return Card(
-                          margin:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: ListTile(
-                            title: Text(
-                              address.receiverName,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(address.address),
-                                Text(address.areaSector),
-                                Text("Phone: ${address.receiverContact}"),
-                              ],
-                            ),
-                            trailing: address.isDefault == 1
-                                ? Chip(label: Text("Default"))
-                                : null,
-                            onTap: () {
-                              if (state.status == AddressBookStatus.success) {
-                                context.read<AddressBookBloc>().add(
-                                      SetDefaultAddressEvent(
-                                        addressId: address.id,
-                                      ),
-                                    );
-                              }
-                              if (state.status == AddressBookStatus.success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Default address set successfully',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                    behavior: SnackBarBehavior.floating,
-                                    margin: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 10),
-                                    duration: Duration(seconds: 3),
-                                  ),
-                                );
+                    ),
+                    backgroundColor: Colors.red,
+                    behavior: SnackBarBehavior.floating,
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    duration: Duration(seconds: 4),
+                  ),
+                );
+              }
+            },
+            builder: (context, state) {
+              if (state.status == AddressBookStatus.loading) {
+                return Center(child: CircularProgressIndicator());
+              }
+              if (state.status == AddressBookStatus.failure) {
+                return Center(child: Text('Error: ${state.errorMessage}'));
+              }
+              if (state.addressList != null && state.addressList.isNotEmpty) {
+                for (var address in state.addressList) {
+                  if (!_productOrderMap.containsKey(address.id)) {
+                    _productOrderMap[address.id] = _orderCounter++;
+                  }
+                }
+              }
 
-                                context.read<AddressBookBloc>().add(
-                                      GetAddressListEvent(
-                                        addressParam: AddressParam(
-                                          searchValue: searchController.text,
-                                        ),
-                                      ),
-                                    );
-                                if (fromHome) {
-                                  context.pop(address);
-                                }
-                              }
+              final sortedAddressList = state.addressList.isNotEmpty
+                  ? List.from(state.addressList)
+                  : [];
+              if (sortedAddressList.isNotEmpty) {
+                sortedAddressList.sort((a, b) {
+                  final orderA = _productOrderMap[a.id] ?? 999999;
+                  final orderB = _productOrderMap[b.id] ?? 999999;
+                  return orderA.compareTo(orderB);
+                });
+              }
+              return Column(
+                children: [
+                  if (state.status == AddressBookStatus.loading)
+                    Center(child: CircularProgressIndicator()),
+                  Expanded(
+                    child: sortedAddressList.isEmpty
+                        ? Center(
+                            child: Text(
+                              state.status == AddressBookStatus.success
+                                  ? "No addresses found"
+                                  : "",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: sortedAddressList.length,
+                            itemBuilder: (context, index) {
+                              final address = sortedAddressList[index];
+                              return Card(
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: ListTile(
+                                  title: Text(
+                                    address.receiverName,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(address.address),
+                                      Text(address.areaSector),
+                                      Text("Phone: ${address.receiverContact}"),
+                                    ],
+                                  ),
+                                  trailing: address.isDefault == 1
+                                      ? Chip(label: Text("Default"))
+                                      : null,
+                                  onTap: () {
+                                    if (state.status ==
+                                        AddressBookStatus.success) {
+                                      context.read<AddressBookBloc>().add(
+                                            SetDefaultAddressEvent(
+                                              addressId: address.id,
+                                            ),
+                                          );
+                                    }
+                                    if (state.status ==
+                                        AddressBookStatus.success) {
+                                      if (fromHome) {
+                                        context.pop(address);
+                                      }
+                                    }
+                                  },
+                                ),
+                              );
                             },
                           ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        );
-      },
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

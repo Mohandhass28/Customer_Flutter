@@ -1,8 +1,9 @@
 import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/core/bloc/default_address_header/bloc/address_header_bloc.dart';
 import 'package:customer/core/network/dio_client.dart';
-import 'package:customer/core/services/bill_summary_refresh_service.dart';
-import 'package:customer/core/services/cart_refresh_service.dart';
+import 'package:customer/core/refresh_services/address/address_refresh_service.dart';
+import 'package:customer/core/refresh_services/bill_summary_refresh_service.dart';
+import 'package:customer/core/refresh_services/cart_refresh_service.dart';
 import 'package:customer/data/repository/address/address.dart';
 import 'package:customer/data/repository/auth/auth.dart';
 import 'package:customer/data/repository/cart/cart.dart';
@@ -30,6 +31,7 @@ import 'package:customer/domain/product/usecases/product_details_usecase.dart';
 import 'package:customer/domain/shop/repository/shop.dart';
 import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
 import 'package:customer/main.dart';
+import 'package:customer/presentation/cart_details/widget/bill_summary/bloc/bill_summary_bloc.dart';
 import 'package:customer/presentation/shop_details/page/product_details/bloc/add_to_cart/add_to_cart_bloc.dart';
 import 'package:get_it/get_it.dart';
 
@@ -122,10 +124,16 @@ void _registerAddress() {
     ),
   );
 
+  //default address bloc
   sl.registerLazySingleton<AddressHeaderBloc>(
     () => AddressHeaderBloc(
       getDfaultusecase: sl<GetDefaultAddressUseCase>(),
     ),
+  );
+
+  //refresh service
+  sl.registerLazySingleton<AddressRefreshService>(
+    () => AddressRefreshService(),
   );
 }
 
@@ -234,12 +242,19 @@ void _registerCart() {
       cartRepository: sl<CartRepository>(),
     ),
   );
+
+  sl.registerLazySingleton<BillSummaryBloc>(
+    () => BillSummaryBloc(
+      cartDetailsUsecase: sl<CartDetailsUsecase>(),
+    ),
+  );
 }
 
 void _registerRefreshServiceForCart() {
-  sl.registerLazySingleton(() => CartRefreshService());
+  sl.registerLazySingleton<CartRefreshService>(() => CartRefreshService());
 }
 
 void _registerRefreshServiceForBillSummary() {
-  sl.registerLazySingleton(() => BillSummaryRefreshService());
+  sl.registerLazySingleton<BillSummaryRefreshService>(
+      () => BillSummaryRefreshService());
 }

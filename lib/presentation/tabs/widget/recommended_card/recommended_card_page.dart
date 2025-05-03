@@ -1,11 +1,15 @@
 import 'package:customer/core/config/assets/app_images.dart';
+import 'package:customer/core/config/theme/app_color.dart';
 import 'package:customer/data/models/shop/shop_list/shop_list_model.dart';
+import 'package:customer/presentation/tabs/page/home/bloc/home_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class RecommendedCardPage extends StatefulWidget {
-  const RecommendedCardPage({super.key, required this.shopListModel});
-
+  const RecommendedCardPage(
+      {super.key, required this.shopListModel, required HomeBloc homeBloc})
+      : _homeBloc = homeBloc;
+  final HomeBloc _homeBloc;
   final ShopListModel shopListModel;
 
   @override
@@ -52,11 +56,19 @@ class _RecommendedCardPageState extends State<RecommendedCardPage> {
                         icon: Icon(
                           Icons.favorite,
                           color: widget.shopListModel.isWishlist == 1
-                              ? Colors.red
+                              ? AppColor.primaryColor
                               : Colors.grey,
-                          size: 14,
+                          size: 16,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          widget._homeBloc.add(
+                            AddRemoveShopWishlist(
+                              shopId: widget.shopListModel.id,
+                              isWishlist:
+                                  widget.shopListModel.isWishlist == 1 ? 0 : 1,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),

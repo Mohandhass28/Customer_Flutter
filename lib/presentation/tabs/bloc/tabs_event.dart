@@ -6,3 +6,11 @@ sealed class TabsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class setDefaultAddressEvent extends TabsEvent {
+  final CreateAddressEntity params;
+  const setDefaultAddressEvent({required this.params});
+
+  @override
+  List<Object> get props => [];
+}

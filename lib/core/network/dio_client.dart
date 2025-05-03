@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 
 import 'interceptors.dart';
 
@@ -19,12 +19,21 @@ class DioClient {
     String? baseUrl;
     try {
       baseUrl = dotenv.env['BASE_URL'];
+      debugPrint('Loaded BASE_URL from .env: $baseUrl');
     } catch (e) {
-      baseUrl = 'https://mock-api.com';
+      debugPrint('Error loading .env file: $e');
+      // Hardcoded fallback URL for release builds
+      baseUrl = 'http://13.235.24.176:7600/mobile-api/';
+    }
+
+    // Ensure we always have a base URL
+    if (baseUrl == null || baseUrl.isEmpty) {
+      baseUrl = 'http://13.235.24.176:7600/mobile-api/';
+      debugPrint('Using fallback BASE_URL: $baseUrl');
     }
 
     _dio.options = BaseOptions(
-      baseUrl: baseUrl ?? '',
+      baseUrl: baseUrl, // baseUrl is guaranteed to be non-null at this point
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       sendTimeout: const Duration(seconds: 30),

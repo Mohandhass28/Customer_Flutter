@@ -3,7 +3,8 @@ import 'package:customer/common/models/cart/variant_add_cart.dart';
 import 'package:customer/common/widgets/expandable_text.dart';
 import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/core/config/theme/app_color.dart';
-import 'package:customer/core/services/cart_refresh_service.dart';
+import 'package:customer/core/refresh_services/bill_summary_refresh_service.dart';
+import 'package:customer/core/refresh_services/cart_refresh_service.dart';
 import 'package:customer/data/models/product/product_details/index.dart';
 import 'package:customer/domain/cart/entities/add_to_cart/add_to_cart_params.dart';
 import 'package:customer/domain/cart/usecases/add_to_cart_usecase.dart';
@@ -162,6 +163,8 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                         );
                         Navigator.pop(context);
                         sl<CartRefreshService>().refreshCart();
+                        sl<BillSummaryRefreshService>().refreshBillSummary();
+
                         cartDetailsBloc.close();
                         return;
                       }
@@ -185,22 +188,7 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                         cartDetailsBloc.close();
                         return;
                       }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            state.addToCartResponse?.msg ?? 'Unknown error',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                          backgroundColor: Colors.red,
-                          behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          duration: Duration(seconds: 3),
-                        ),
-                      );
+
                       cartDetailsBloc.close();
                     },
                   ),
@@ -536,6 +524,9 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                                         fontWeight: FontWeight.w400,
                                       ),
                                     ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                        "${state.productDetails?.productData.productDetails.qty} ${state.productDetails?.productData.productDetails.unit}"),
                                     const SizedBox(height: 10),
                                     Row(
                                       children: [
