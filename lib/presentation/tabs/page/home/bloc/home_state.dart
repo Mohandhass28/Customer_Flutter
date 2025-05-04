@@ -10,7 +10,7 @@ enum HomeStatus {
 class HomeState extends Equatable {
   final HomeStatus status;
   final String? errorMessage;
-  final List<ShopListModel>? shopList;
+  final ShopListResponseModel? shopList;
 
   const HomeState({
     this.status = HomeStatus.initial,
@@ -21,7 +21,7 @@ class HomeState extends Equatable {
   HomeState copyWith({
     HomeStatus? status,
     String? errorMessage,
-    List<ShopListModel>? shopList,
+    ShopListResponseModel? shopList,
   }) {
     return HomeState(
       status: status ?? this.status,

@@ -87,9 +87,12 @@ class _FoodPageState extends State<FoodPage> {
         builder: (context, state) {
           return Scaffold(
             body: SingleChildScrollView(
+              // Add key to ensure proper widget tree management
+              key: PageStorageKey('food_scroll'),
               child: Column(
                 children: [
-                  HeaderWidget(),
+                  // Use a unique key for each HeaderWidget instance
+                  HeaderWidget(key: ValueKey('food_header')),
                   SizedBox(height: 15),
                   CarouselSliderWidget(),
                   SizedBox(height: 15),
@@ -142,21 +145,23 @@ class _FoodPageState extends State<FoodPage> {
                   ),
                   SizedBox(height: 30),
                   Container(
-                    height: 150,
+                    height: 150, // Adjust this height based on your needs
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: state.shopList?.length ?? 0,
+                      itemCount: state.shopList?.shopList.length ?? 0,
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
-                        if (state.shopList![index].isWishlist == 0 &&
+                        // Safe to use ! here since we check length in itemCount
+                        if (state.shopList!.shopList[index].isWishlist == 0 &&
                             activeTab == "Favorites") {
                           return Container();
                         }
                         return Padding(
                           padding: EdgeInsets.only(right: 16),
                           child: RecommendedCardPage(
-                            shopListModel: state.shopList![index],
+                            shopListModel: state.shopList!.shopList[
+                                index], // This is safe because we check itemCount
                             homeBloc: _homeBloc,
                           ),
                         );
@@ -166,9 +171,51 @@ class _FoodPageState extends State<FoodPage> {
                   SizedBox(height: 30),
                   Text("Categories"),
                   SizedBox(height: 30),
-                  Text("What's on your mind?"),
+                  Text(
+                    "What's on your mind?",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  // Add Container with constraints to ensure visibility
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: (state.shopList?.shopCategoryList.isNotEmpty ==
+                              true)
+                          ? state.shopList!.shopCategoryList.map((category) {
+                              return CategoriesCard(
+                                id: category.id,
+                                name: category.name,
+                                image: category.image ?? "",
+                              );
+                            }).toList()
+                          : [
+                              // Fallback categories when list is empty or null
+                              CategoriesCard(
+                                id: 1,
+                                name: "Food",
+                                image: "",
+                              ),
+                              CategoriesCard(
+                                id: 2,
+                                name: "Grocery",
+                                image: "",
+                              ),
+                              CategoriesCard(
+                                id: 3,
+                                name: "Beverages",
+                                image: "",
+                              ),
+                            ],
+                    ),
+                  ),
                   SizedBox(height: 30),
-                  CategoriesCard(),
                   SizedBox(height: 30),
                 ],
               ),

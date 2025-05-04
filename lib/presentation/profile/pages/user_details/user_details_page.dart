@@ -1,6 +1,11 @@
+import 'package:customer/domain/profile/entities/customer_details_params.dart';
+import 'package:customer/presentation/profile/pages/user_details/bloc/profile_bloc.dart';
+import 'package:customer/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:customer/core/config/theme/app_color.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class UserDetailsPage extends StatefulWidget {
@@ -11,6 +16,7 @@ class UserDetailsPage extends StatefulWidget {
 }
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
+  late ProfileBloc _profileBloc;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -23,8 +29,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   void initState() {
     super.initState();
-    // Here you would typically load user data from a repository or API
-    // For now, we'll use placeholder data
+    _profileBloc = sl<ProfileBloc>()..add(GetProfileEvent());
     _nameController.text = '';
     _emailController.text = '';
     _phoneController.text = '';
@@ -64,9 +69,17 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 
   void _updateProfile() {
-    // Implement profile update logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Profile updated successfully')),
+    _profileBloc.add(
+      UpdateProfileEvent(
+        params: CustomerDetailsParams(
+          name: _nameController.text,
+          email: _emailController.text,
+          phone: _phoneController.text,
+          dob: _dobController.text,
+          gender: _selectedGender ?? '',
+        ),
+        context: context,
+      ),
     );
   }
 
@@ -91,89 +104,134 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Profile Picture
-              Center(
-                child: Stack(
+      body: BlocProvider.value(
+        value: _profileBloc,
+        child: BlocConsumer<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state.status == ProfileStatus.failure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.errorMessage ?? 'Unknown error',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            }
+            if (state.status == ProfileStatus.success) {
+              _nameController.text = state.customerDetails?.data.name ?? '';
+              _emailController.text = state.customerDetails?.data.email ?? '';
+              _phoneController.text = state.customerDetails?.data.phone ?? '';
+              final dob = state.customerDetails?.data.dob;
+              debugPrint("dob: $dob");
+              if (dob != null) {
+                _dobController.text = DateFormat('dd/MM/yyyy').format(
+                  DateTime.parse(dob),
+                );
+              }
+              _selectedGender = state.customerDetails?.data.gender;
+            }
+          },
+          builder: (context, state) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: AppColor.primaryColor,
-                        shape: BoxShape.circle,
+                    // Profile Picture
+                    Center(
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: AppColor.primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 2,
+                            left: 2,
+                            child: Container(
+                              width: 45,
+                              height: 45,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: IconButton(
+                                  icon: Icon(Icons.camera_alt_outlined),
+                                  color: AppColor.primaryColor,
+                                  onPressed: () {
+                                    openBottomSheet();
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Positioned(
-                      bottom: 2,
-                      left: 2,
-                      child: Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: IconButton(
-                            icon: Icon(Icons.camera_alt),
-                            color: AppColor.primaryColor,
-                            onPressed: () {},
-                          ),
-                        ),
-                      ),
+
+                    SizedBox(height: 32),
+
+                    // Name Field
+                    _buildFieldLabel('Name'),
+                    _buildTextField(_nameController, 'Enter your name'),
+
+                    SizedBox(height: 16),
+
+                    // Email Field
+                    _buildFieldLabel('Email ID'),
+                    _buildTextField(
+                      _emailController,
+                      'Enter your email',
                     ),
+
+                    SizedBox(height: 16),
+
+                    // Phone Field
+                    _buildFieldLabel('Phone Number'),
+                    _buildTextField(
+                      _phoneController,
+                      'Enter your phone number',
+                    ),
+
+                    SizedBox(height: 16),
+
+                    // Date of Birth Field
+                    _buildFieldLabel('Date of Birth'),
+                    _buildDateField(),
+
+                    SizedBox(height: 16),
+
+                    // Gender Field
+                    _buildFieldLabel('Gender'),
+                    _buildDropdownField(),
+
+                    SizedBox(height: 32),
+
+                    // Update Profile Button
+                    _buildUpdateButton(),
                   ],
                 ),
               ),
-
-              SizedBox(height: 32),
-
-              // Name Field
-              _buildFieldLabel('Name'),
-              _buildTextField(_nameController, 'Enter your name'),
-
-              SizedBox(height: 16),
-
-              // Email Field
-              _buildFieldLabel('Email ID'),
-              _buildTextField(_emailController, 'Enter your email',
-                  suffixWidget: _buildSaveButton()),
-
-              SizedBox(height: 16),
-
-              // Phone Field
-              _buildFieldLabel('Phone Number'),
-              _buildTextField(_phoneController, 'Enter your phone number',
-                  suffixWidget: _buildSaveButton()),
-
-              SizedBox(height: 16),
-
-              // Date of Birth Field
-              _buildFieldLabel('Date of Birth'),
-              _buildDateField(),
-
-              SizedBox(height: 16),
-
-              // Gender Field
-              _buildFieldLabel('Gender'),
-              _buildDropdownField(),
-
-              SizedBox(height: 32),
-
-              // Update Profile Button
-              _buildUpdateButton(),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -185,8 +243,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
           color: Colors.black87,
         ),
       ),
@@ -206,7 +264,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(color: Colors.grey[400]),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           border: InputBorder.none,
           suffixIcon: suffixWidget,
         ),
@@ -240,7 +298,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         controller: _dobController,
         readOnly: true,
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           border: InputBorder.none,
           suffixIcon: IconButton(
             icon: Icon(Icons.calendar_today, color: Colors.grey),
@@ -261,7 +319,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       child: DropdownButtonFormField<String>(
         value: _selectedGender,
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           border: InputBorder.none,
           hintText: 'Select item',
           hintStyle: TextStyle(color: Colors.grey[400]),
@@ -303,6 +361,188 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           ),
         ),
       ),
+    );
+  }
+
+  void openBottomSheet() {
+    void openCamera() async {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+    }
+
+    void openGallery() async {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    }
+
+    void openImageModel() {
+      Navigator.pop(context);
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return DraggableScrollableSheet(
+            initialChildSize: 1.0,
+            minChildSize: 0.5,
+            maxChildSize: 1.0,
+            expand: false,
+            builder: (context, scrollController) {
+              return Container(
+                color: Colors.black.withOpacity(0.7),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Container(
+                        constraints: BoxConstraints(
+                          minHeight: 400,
+                          minWidth: 400,
+                        ),
+                        height: 400,
+                        width: 400,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Image.asset(
+                          'assets/images/Ordalane.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 50,
+                      right: 20,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: Colors.black,
+                            size: 30,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
+    }
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.2,
+          maxChildSize: 0.6,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              padding: EdgeInsets.all(16),
+              child: ListView(
+                controller: scrollController,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  ListTile(
+                    style: ListTileStyle.list,
+                    trailing: Icon(
+                      Icons.remove_red_eye_outlined,
+                      size: 26,
+                    ),
+                    title: Text(
+                      'View profile photo',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    onTap: () {
+                      openImageModel();
+                      // Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    style: ListTileStyle.list,
+                    trailing: Icon(
+                      Icons.image_outlined,
+                      size: 26,
+                    ),
+                    title: Text(
+                      'Upload from gallery',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    onTap: () {
+                      openGallery();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    style: ListTileStyle.list,
+                    trailing: Icon(
+                      Icons.camera_alt_outlined,
+                      size: 26,
+                    ),
+                    title: Text(
+                      'Take photo',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    onTap: () {
+                      openCamera();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    style: ListTileStyle.list,
+                    trailing: Icon(
+                      Icons.delete_outline,
+                      size: 26,
+                      color: Colors.red,
+                    ),
+                    title: Text(
+                      'Delete photo',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    onTap: () {
+                      // Implement photo capture logic
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

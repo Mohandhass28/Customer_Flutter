@@ -19,7 +19,11 @@ import 'package:customer/presentation/profile/pages/notification/page/notificati
 import 'package:customer/presentation/profile/pages/past_orders/page/past_orders_page.dart';
 import 'package:customer/presentation/profile/pages/profile.dart';
 import 'package:customer/presentation/profile/pages/user_details/user_details_page.dart';
+import 'package:customer/presentation/profile/pages/wallet/page/add_money_page/add_money_page.dart';
+import 'package:customer/presentation/profile/pages/wallet/page/add_money_page/payment_mode_page.dart';
 import 'package:customer/presentation/profile/pages/wallet/page/wallet_page.dart';
+import 'package:customer/presentation/profile/pages/wallet/page/withdraw_page/withdraw_page.dart';
+import 'package:customer/presentation/profile/pages/wallet/page/withdraw_page/withdraw_payment_mode_page.dart';
 import 'package:customer/presentation/shop_details/page/shop_details.dart';
 import 'package:customer/presentation/splash/page/splash_page.dart';
 import 'package:customer/presentation/tabs/page/bottom_tabs_page.dart';
@@ -207,6 +211,26 @@ class AppRoutesConfig {
         name: 'coupons',
         path: '/coupons',
         builder: (context, state) => const CouponsPage(),
+      ),
+      GoRoute(
+        name: 'add-money',
+        path: '/add-money',
+        builder: (context, state) => const AddMoneyPage(),
+      ),
+      GoRoute(
+        name: 'withdraw-money',
+        path: '/withdraw-money',
+        builder: (context, state) => const WithdrawPage(),
+      ),
+      GoRoute(
+        name: 'add-money-payment-mode',
+        path: '/add-money-payment-mode',
+        builder: (context, state) => const PaymentModePage(),
+      ),
+      GoRoute(
+        name: 'withdraw-money-payment-mode',
+        path: '/withdraw-money-payment-mode',
+        builder: (context, state) => const WithdrawPaymentModePage(),
       ),
     ],
   );

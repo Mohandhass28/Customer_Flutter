@@ -57,6 +57,7 @@ class ShopDetailsInfoEntity extends Equatable {
   final String latitude;
   final String longitude;
   final bool status;
+  final bool isOpen;
   const ShopDetailsInfoEntity({
     required this.id,
     required this.shopName,
@@ -66,6 +67,7 @@ class ShopDetailsInfoEntity extends Equatable {
     required this.latitude,
     required this.longitude,
     required this.status,
+    required this.isOpen,
   });
   @override
   List<Object?> get props => [
@@ -77,6 +79,7 @@ class ShopDetailsInfoEntity extends Equatable {
         latitude,
         longitude,
         status,
+        isOpen,
       ];
 }
 

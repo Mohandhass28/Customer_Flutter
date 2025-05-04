@@ -1,10 +1,39 @@
 part of 'account_details_bloc.dart';
 
-sealed class AccountDetailsState extends Equatable {
-  const AccountDetailsState();
-  
-  @override
-  List<Object> get props => [];
+enum AccountDetailsStatus {
+  initial,
+  loading,
+  success,
+  failure,
 }
 
-final class AccountDetailsInitial extends AccountDetailsState {}
+class AccountDetailsState extends Equatable {
+  final AccountDetailsStatus status;
+  final String? errorMessage;
+  final AccountDetailsResponse? accountDetails;
+
+  const AccountDetailsState({
+    this.status = AccountDetailsStatus.initial,
+    this.errorMessage,
+    this.accountDetails,
+  });
+
+  AccountDetailsState copyWith({
+    AccountDetailsStatus? status,
+    String? errorMessage,
+    AccountDetailsResponse? accountDetails,
+  }) {
+    return AccountDetailsState(
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+      accountDetails: accountDetails ?? this.accountDetails,
+    );
+  }
+
+  @override
+  List<Object> get props => [
+        status,
+        errorMessage ?? '',
+        accountDetails ?? '',
+      ];
+}

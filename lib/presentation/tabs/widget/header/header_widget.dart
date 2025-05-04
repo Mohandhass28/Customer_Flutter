@@ -1,14 +1,12 @@
 import 'package:customer/core/bloc/default_address_header/bloc/address_header_bloc.dart';
 import 'package:customer/core/config/assets/app_images.dart';
 import 'package:customer/core/config/theme/app_color.dart';
-import 'package:customer/core/refresh_services/address/address_refresh_service.dart';
 import 'package:customer/data/models/address/create_address_model.dart';
-import 'package:customer/domain/address/entities/create_address_entity.dart';
 import 'package:customer/domain/address/usecases/get_adderss_list_usecase.dart';
 import 'package:customer/domain/address/usecases/get_default_address_usecase.dart';
+import 'package:customer/presentation/profile/pages/user_details/bloc/profile_bloc.dart';
 import 'package:customer/presentation/tabs/bloc/tabs_bloc.dart';
 import 'package:customer/service_locator.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
@@ -18,49 +16,90 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HeaderWidget extends StatefulWidget {
-  const HeaderWidget({super.key});
+  // Use a regular constructor instead of const to allow for UniqueKey
+  HeaderWidget({Key? key}) : super(key: UniqueKey());
 
   @override
   State<HeaderWidget> createState() => _HeaderWidgetState();
 }
 
 class _HeaderWidgetState extends State<HeaderWidget> {
-  bool _isLoadingAddress = false;
+  // Removed unused _isLoadingAddress field
   LatLng? _currentPosition;
   late TabsBloc _tabsBloc;
+  late ProfileBloc _profileBloc;
   bool isCalled = false;
 
   @override
   void initState() {
     super.initState();
+    debugPrint("initState: Initializing HeaderWidget");
     _getCurrentLocation();
     _tabsBloc = TabsBloc(addressusace: sl<AddressListUseCase>());
+    isCalled = false; // Reset isCalled flag
+    debugPrint("initState: isCalled set to false");
+    _profileBloc = sl<ProfileBloc>()..add(GetProfileEvent());
   }
 
   @override
   void dispose() {
+    debugPrint("dispose: Disposing HeaderWidget");
+    // Clean up resources
+    _tabsBloc.close();
     super.dispose();
   }
 
+  // Static flag to prevent multiple simultaneous location requests
+  static bool _isGettingLocation = false;
+
   Future<void> _getCurrentLocation() async {
-    // Request location permission
-    final status = await Permission.location.request();
+    // Check if we're already getting location
+    if (_isGettingLocation) {
+      debugPrint("_getCurrentLocation: Already getting location, skipping");
+      return;
+    }
 
-    if (status.isGranted) {
-      try {
-        // Get current position
-        final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
+    _isGettingLocation = true;
+    debugPrint("_getCurrentLocation: Starting to get location");
 
-        setState(() {
-          _currentPosition = LatLng(position.latitude, position.longitude);
-        });
-      } catch (e) {
-        print("Error getting location: $e");
+    try {
+      // Request location permission
+      final status = await Permission.location.request();
+      debugPrint(
+          "_getCurrentLocation: Permission status: ${status.toString()}");
+
+      if (status.isGranted) {
+        try {
+          debugPrint(
+              "_getCurrentLocation: Permission granted, getting position");
+          // Get current position
+          final position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+          );
+          debugPrint(
+              "_getCurrentLocation: Position obtained: ${position.latitude}, ${position.longitude}");
+
+          // Check if widget is still mounted before calling setState
+          if (mounted) {
+            debugPrint(
+                "_getCurrentLocation: Widget is mounted, updating state");
+            setState(() {
+              _currentPosition = LatLng(position.latitude, position.longitude);
+            });
+            debugPrint("_getCurrentLocation: State updated with position");
+          } else {
+            debugPrint(
+                "_getCurrentLocation: Widget is not mounted, cannot update state");
+          }
+        } catch (e) {
+          debugPrint("_getCurrentLocation: Error getting location: $e");
+        }
+      } else {
+        debugPrint("_getCurrentLocation: Location permission denied");
       }
-    } else {
-      print("Location permission denied");
+    } finally {
+      // Reset the flag when done
+      _isGettingLocation = false;
     }
   }
 
@@ -69,7 +108,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
-      print('Placemarks: $placemarks');
+      debugPrint('Placemarks: $placemarks');
 
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
@@ -81,50 +120,98 @@ class _HeaderWidgetState extends State<HeaderWidget> {
             '${place.administrativeArea ?? ''}, '
             '${place.country ?? ''}';
 
-        print('Address: $address');
+        debugPrint('Address: $address');
         addressText = address;
-        _isLoadingAddress = false;
       } else {
-        print('No placemarks found for this location.');
+        debugPrint('No placemarks found for this location.');
       }
     } catch (e, stackTrace) {
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
+      debugPrint('Error: $e');
+      debugPrint('StackTrace: $stackTrace');
       addressText = "Unknown Address";
-      _isLoadingAddress = false;
     }
     return addressText;
   }
 
+  // Use a static flag to prevent multiple address creations across widget instances
+  static bool _addressCreationInProgress = false;
+
   Future<void> setDefaultAddress() async {
-    if (_currentPosition != null) {
-      final address = await getAddressFromLatLng(
-        _currentPosition!.latitude,
-        _currentPosition!.longitude,
-      );
-      _tabsBloc.add(
-        setDefaultAddressEvent(
-          params: CreateAddressModel(
-            type: "Home",
-            receiverName: "Customer",
-            receiverContact: 1234123412,
-            address: address,
-            latitude: _currentPosition!.latitude.toString(),
-            longitude: _currentPosition!.longitude.toString(),
-            areaSector: "Home",
-            isDefault: 1,
+    // Check if widget is still mounted before proceeding
+    if (!mounted) {
+      debugPrint("setDefaultAddress: Widget not mounted, returning");
+      return;
+    }
+
+    // Check if address creation is already in progress
+    if (_addressCreationInProgress) {
+      debugPrint(
+          "setDefaultAddress: Address creation already in progress, returning");
+      return;
+    }
+
+    // Set the flag to prevent duplicate calls
+    _addressCreationInProgress = true;
+
+    try {
+      debugPrint(
+          "setDefaultAddress: Current position is ${_currentPosition != null ? 'available' : 'null'}");
+
+      if (_currentPosition != null) {
+        debugPrint("setDefaultAddress: Getting address from lat/lng");
+        final address = await getAddressFromLatLng(
+          _currentPosition!.latitude,
+          _currentPosition!.longitude,
+        );
+
+        // Check again if widget is still mounted after async operation
+        if (!mounted) {
+          debugPrint(
+              "setDefaultAddress: Widget not mounted after async operation, returning");
+          return;
+        }
+
+        debugPrint("setDefaultAddress: Adding event to TabsBloc");
+        _tabsBloc.add(
+          setDefaultAddressEvent(
+            params: CreateAddressModel(
+              type: "Home",
+              receiverName: "Customer",
+              receiverContact: int.parse(
+                  _profileBloc.state.customerDetails?.data.phone ??
+                      "1234567789"),
+              address: address,
+              latitude: _currentPosition!.latitude.toString(),
+              longitude: _currentPosition!.longitude.toString(),
+              areaSector: "Home",
+              isDefault: 1,
+            ),
           ),
-        ),
-      );
+        );
+        debugPrint("setDefaultAddress: Event added to TabsBloc");
+      } else {
+        debugPrint(
+            "setDefaultAddress: Current position is null, cannot add address");
+      }
+    } finally {
+      // Reset the flag after a delay to allow the operation to complete
+      Future.delayed(Duration(seconds: 5), () {
+        _addressCreationInProgress = false;
+        debugPrint("setDefaultAddress: Reset address creation flag");
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Use BlocProvider.value if the bloc is already created elsewhere
+    // Or create a new one with a unique ID
+    final addressHeaderBloc = AddressHeaderBloc(
+      getDfaultusecase: sl<GetDefaultAddressUseCase>(),
+    )..add(AddressHeaderEvent());
+
     return BlocProvider(
-      create: (context) => AddressHeaderBloc(
-        getDfaultusecase: sl<GetDefaultAddressUseCase>(),
-      )..add(AddressHeaderEvent()),
+      create: (context) => addressHeaderBloc,
       child: BlocConsumer<AddressHeaderBloc, AddressHeaderState>(
         listener: (context, state) {
           if (state.status == AddressHeaderStatus.success) {}
@@ -133,9 +220,19 @@ class _HeaderWidgetState extends State<HeaderWidget> {
         builder: (context, state) {
           debugPrint("Address state: ${state.address}");
           debugPrint("state: ${state.status}");
-          if (state.address == null && !isCalled) {
-            setDefaultAddress();
+          debugPrint(
+              "Build method: state.address is ${state.address == null ? 'null' : 'not null'}, isCalled is $isCalled, _currentPosition is ${_currentPosition != null ? 'available' : 'null'}");
+          if (state.address == null && !isCalled && _currentPosition != null) {
+            debugPrint(
+                "Build method: All conditions met, setting isCalled to true and calling setDefaultAddress()");
             isCalled = true;
+            // setDefaultAddress();
+          } else if (state.address == null && !isCalled) {
+            debugPrint(
+                "Build method: Address is null and isCalled is false, but _currentPosition is null. Waiting for location...");
+          } else {
+            debugPrint(
+                "Build method: Condition not met, not calling setDefaultAddress()");
           }
 
           return Column(

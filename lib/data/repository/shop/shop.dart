@@ -1,5 +1,6 @@
 import 'package:customer/core/error/failures.dart';
 import 'package:customer/data/models/shop/shop_list/shop_list_model.dart';
+import 'package:customer/data/models/shop/shop_list/shop_list_response_model.dart';
 import 'package:customer/data/source/shop/shop_api_service.dart';
 import 'package:customer/domain/shop/entities/shop_details/shop_details_entity.dart';
 import 'package:customer/domain/shop/entities/shop_details/shop_details_params.dart';
@@ -16,9 +17,10 @@ class ShopRepositoryImpl implements ShopRepository {
       : _shopApiService = shopApiService;
 
   @override
-  Future<Either<Failure, List<ShopListModel>>> getShopList(
+  Future<Either<Failure, ShopListResponseModel>> getShopList(
       ShopListParams params) async {
-    return await _shopApiService.getShopList(params);
+    final result = await _shopApiService.getShopList(params);
+    return result;
   }
 
   @override

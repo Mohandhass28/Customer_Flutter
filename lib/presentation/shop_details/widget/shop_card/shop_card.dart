@@ -132,6 +132,10 @@ class _ShopCardState extends State<ShopCard> {
                     BlocBuilder<ProductDetailsBloc, ProductDetailsState>(
                       builder: (context, productDetail) {
                         if (productDetail.status ==
+                            ProductDetailsStatus.loading) {
+                          return Container();
+                        }
+                        if (productDetail.status ==
                             ProductDetailsStatus.failure) {
                           return Center(
                               child: Text(productDetail.errorMessage ??

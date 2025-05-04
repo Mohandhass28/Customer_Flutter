@@ -41,6 +41,8 @@ class _ShopDetailsState extends State<ShopDetails> {
       ],
       child: BlocConsumer<ShopDetailsBloc, ShopDetailsState>(
         listener: (context, state) {
+          debugPrint(
+              'Shop details status: ${state.shopDetails?.shopData.shopDetails.isOpen}');
           if (state.status == ShopDetailsStatus.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -91,45 +93,118 @@ class _ShopDetailsState extends State<ShopDetails> {
                 ),
                 title: Text("Error"),
               ),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      "Failed to load shop details",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+              body: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      state.errorMessage ?? "Unknown error",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<ShopDetailsBloc>().add(
-                              GetShopDetailsEvent(
-                                params: ShopDetailsParams(
-                                  shopId: widget.shopId,
-                                  latitude: 22.584761,
-                                  longitude: 88.473778,
+                      SizedBox(height: 16),
+                      Text(
+                        "Failed to load shop details",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        state.errorMessage ?? "Unknown error",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                      SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<ShopDetailsBloc>().add(
+                                GetShopDetailsEvent(
+                                  params: ShopDetailsParams(
+                                    shopId: widget.shopId,
+                                    latitude: 22.584761,
+                                    longitude: 88.473778,
+                                  ),
                                 ),
-                              ),
-                            );
-                      },
-                      child: Text("Retry"),
-                    ),
-                  ],
+                              );
+                        },
+                        child: Text(
+                          "Retry",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+          if (state.status == ShopDetailsStatus.success &&
+              state.shopDetails?.shopData.shopDetails.isOpen == false) {
+            return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => context.pop(),
+                ),
+                title: Text("Shop is closed"),
+              ),
+              body: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        "Shop is closed now! Please try again later",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        state.errorMessage ?? "Shop is closed",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                      SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<ShopDetailsBloc>().add(
+                                GetShopDetailsEvent(
+                                  params: ShopDetailsParams(
+                                    shopId: widget.shopId,
+                                    latitude: 22.584761,
+                                    longitude: 88.473778,
+                                  ),
+                                ),
+                              );
+                        },
+                        child: Text(
+                          "Retry",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -237,7 +312,7 @@ class _ShopDetailsState extends State<ShopDetails> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                '${state.shopDetails?.shopData.totalCount ?? 0} Ratings',
+                                '${state.shopDetails?.shopData.totalCount ?? "0"} Ratings',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.grey,

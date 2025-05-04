@@ -1,5 +1,10 @@
 import 'package:customer/core/config/theme/app_color.dart';
+import 'package:customer/domain/account_details/entities/account_details_params.dart';
+import 'package:customer/domain/account_details/usecases/add_account_details.dart';
+import 'package:customer/presentation/profile/pages/account_details/bloc/account_details_bloc.dart';
+import 'package:customer/service_locator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AccountDatails extends StatefulWidget {
@@ -15,130 +20,187 @@ class _AccountDatailsState extends State<AccountDatails> {
       TextEditingController();
   final TextEditingController _bankNameController = TextEditingController();
   final TextEditingController _ifscController = TextEditingController();
+  late AccountDetailsBloc _accountDetailsBloc;
 
   // Form key for validation
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _accountDetailsBloc = AccountDetailsBloc(
+      addAccountDetailsUsecase: sl<AddAccountDetailsUsecase>(),
+    );
+  }
 
   @override
   void dispose() {
     _accountNumberController.dispose();
     _bankNameController.dispose();
     _ifscController.dispose();
+    _accountDetailsBloc.close();
     super.dispose();
   }
 
   // Handle form submission
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // Process the data
-      // You can add your logic here to save the account details
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Account details submitted successfully')),
+      _accountDetailsBloc.add(
+        AddAccountDetailsEvent(
+          params: AccountDetailsParams(
+            accountNo: _accountNumberController.text,
+            bankName: _bankNameController.text,
+            ifscCode: _ifscController.text,
+          ),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: Colors.grey[100],
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          "Account Details",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        centerTitle: false,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Account Number Field
-              _buildFieldLabel('Account Number'),
-              _buildTextField(
-                controller: _accountNumberController,
-                hintText: 'Enter your account number',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your account number';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.number,
-              ),
-              SizedBox(height: 20),
-
-              // Bank Name Field
-              _buildFieldLabel('Bank Name'),
-              _buildTextField(
-                controller: _bankNameController,
-                hintText: 'Enter your bank name',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your bank name';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-
-              // IFSC Field
-              _buildFieldLabel('IFSC'),
-              _buildTextField(
-                controller: _ifscController,
-                hintText: 'Enter IFSC code',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter IFSC code';
-                  }
-                  // You can add more validation for IFSC format if needed
-                  return null;
-                },
-              ),
-
-              // Submit Button
-              Padding(
-                padding: const EdgeInsets.only(top: 30.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _submitForm,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor
-                          .primaryColor, // Light green color as shown in the image
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    child: Text(
-                      'Submit',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+    return BlocProvider.value(
+      value: _accountDetailsBloc,
+      child: BlocConsumer<AccountDetailsBloc, AccountDetailsState>(
+        listener: (context, state) {
+          if (state.status == AccountDetailsStatus.failure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.errorMessage ?? 'Unknown error',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
                   ),
                 ),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                duration: Duration(seconds: 3),
               ),
-            ],
-          ),
-        ),
+            );
+          }
+          if (state.status == AccountDetailsStatus.success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.accountDetails?.msg ?? 'Unknown error',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: Colors.grey[100],
+            appBar: AppBar(
+              backgroundColor: Colors.grey[100],
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () => context.pop(),
+              ),
+              title: Text(
+                "Account Details",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              centerTitle: false,
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Account Number Field
+                    _buildFieldLabel('Account Number'),
+                    _buildTextField(
+                      controller: _accountNumberController,
+                      hintText: 'Enter your account number',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your account number';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.number,
+                    ),
+                    SizedBox(height: 20),
+
+                    // Bank Name Field
+                    _buildFieldLabel('Bank Name'),
+                    _buildTextField(
+                      controller: _bankNameController,
+                      hintText: 'Enter your bank name',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your bank name';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20),
+
+                    // IFSC Field
+                    _buildFieldLabel('IFSC'),
+                    _buildTextField(
+                      controller: _ifscController,
+                      hintText: 'Enter IFSC code',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter IFSC code';
+                        }
+                        // You can add more validation for IFSC format if needed
+                        return null;
+                      },
+                    ),
+
+                    // Submit Button
+                    Padding(
+                      padding: const EdgeInsets.only(top: 30.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _submitForm,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor
+                                .primaryColor, // Light green color as shown in the image
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          child: Text(
+                            'Submit',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

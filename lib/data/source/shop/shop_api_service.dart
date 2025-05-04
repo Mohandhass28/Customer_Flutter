@@ -1,5 +1,6 @@
 import 'package:customer/core/error/failures.dart';
 import 'package:customer/data/models/shop/shop_details/shop_details_model.dart';
+import 'package:customer/data/models/shop/shop_list/shop_list_response_model.dart';
 import 'package:customer/domain/shop/entities/shop_details/shop_details_entity.dart';
 import 'package:customer/domain/shop/entities/shop_details/shop_details_params.dart';
 import 'package:customer/domain/shop/entities/shop_list/shop_list_params.dart';
@@ -14,7 +15,7 @@ import '../../../core/network/dio_client.dart';
 import '../../models/shop/shop_list/shop_list_model.dart';
 
 abstract class ShopApiService {
-  Future<Either<Failure, List<ShopListModel>>> getShopList(
+  Future<Either<Failure, ShopListResponseModel>> getShopList(
       ShopListParams params);
 
   Future<Either<Failure, ShopDetailsResponseEntity>> getShopDetails(
@@ -34,18 +35,26 @@ class ShopApiServiceImpl implements ShopApiService {
         _sharedPreferences = sharedPreferences;
 
   @override
-  Future<Either<Failure, List<ShopListModel>>> getShopList(
+  Future<Either<Failure, ShopListResponseModel>> getShopList(
       ShopListParams params) async {
     try {
       final response = await _dioClient.post(
         endpoint: 'customer/shop_list',
         params: params.toJson(),
       );
+
+      debugPrint('Shop list response status: ${response.statusCode}');
+      debugPrint('Shop list response data: ${response.data}');
+      debugPrint('Shop list response params: ${params.toJson()}');
+
       if (response.statusCode == 200) {
-        final shopList = (response.data['shop_list'] as List<dynamic>)
-            .map((json) => ShopListModel.fromJson(json))
-            .toList();
-        return Right(shopList);
+        final responseModel = ShopListResponseModel.fromJson(response.data);
+        debugPrint('Shop list count: ${responseModel.shopList.length}');
+        debugPrint(
+            'Shop category count: ${responseModel.shopCategoryList.length}');
+        debugPrint('Shop list response message: ${responseModel.msg}');
+        debugPrint('Shop list response status: ${responseModel.status}');
+        return Right(responseModel);
       }
       return const Left(ServerFailure(message: 'Failed to get shop list'));
     } on DioException catch (e) {
@@ -74,12 +83,30 @@ class ShopApiServiceImpl implements ShopApiService {
 
       if (response.statusCode == 200) {
         try {
+          // Log the structure and types of the response data to help with debugging
+          if (response.data is Map<String, dynamic>) {
+            final responseMap = response.data as Map<String, dynamic>;
+            debugPrint('Response keys: ${responseMap.keys.join(', ')}');
+
+            if (responseMap['shop_data'] is Map<String, dynamic>) {
+              final shopData = responseMap['shop_data'] as Map<String, dynamic>;
+              debugPrint('Shop data keys: ${shopData.keys.join(', ')}');
+
+              // Log types of important fields
+              shopData.forEach((key, value) {
+                debugPrint(
+                    'Field: $key, Value: $value, Type: ${value?.runtimeType}');
+              });
+            }
+          }
+
           final result = ShopDetailsResponseModel.fromJson(response.data);
           debugPrint(
               'Successfully parsed shop details. Product count: ${result.shopData.productList.length}');
           return Right(result);
-        } catch (parseError) {
+        } catch (parseError, stackTrace) {
           debugPrint('Error parsing shop details: $parseError');
+          debugPrint('Stack trace: $stackTrace');
           return Left(ServerFailure(
               message: 'Error parsing shop details: $parseError'));
         }
@@ -97,8 +124,9 @@ class ShopApiServiceImpl implements ShopApiService {
         return const Left(NetworkFailure(message: 'Network connection failed'));
       }
       return Left(ServerFailure(message: 'Server error: ${e.message}'));
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Unexpected error in getShopDetails: $e');
+      debugPrint('Stack trace: $stackTrace');
       return Left(ServerFailure(message: 'Unexpected error: $e'));
     }
   }

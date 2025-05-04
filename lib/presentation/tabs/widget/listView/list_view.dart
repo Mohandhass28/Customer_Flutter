@@ -22,9 +22,9 @@ class _ListViewWidgetState extends State<ListViewWidget> {
         return ListView.builder(
           shrinkWrap: true,
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: state.shopList?.length ?? 0,
+          itemCount: state.shopList?.shopList.length ?? 0,
           itemBuilder: (context, index) {
-            return buildShopCard(state.shopList![index]);
+            return buildShopCard(state.shopList!.shopList[index]);
           },
         );
       },

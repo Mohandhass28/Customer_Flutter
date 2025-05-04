@@ -6,3 +6,13 @@ sealed class AccountDetailsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class AddAccountDetailsEvent extends AccountDetailsEvent {
+  final AccountDetailsParams params;
+  const AddAccountDetailsEvent({required this.params});
+
+  @override
+  List<Object> get props => [
+        params,
+      ];
+}

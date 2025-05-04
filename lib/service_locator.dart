@@ -4,16 +4,22 @@ import 'package:customer/core/network/dio_client.dart';
 import 'package:customer/core/refresh_services/address/address_refresh_service.dart';
 import 'package:customer/core/refresh_services/bill_summary_refresh_service.dart';
 import 'package:customer/core/refresh_services/cart_refresh_service.dart';
+import 'package:customer/data/repository/account_details/account_details.dart';
 import 'package:customer/data/repository/address/address.dart';
 import 'package:customer/data/repository/auth/auth.dart';
 import 'package:customer/data/repository/cart/cart.dart';
 import 'package:customer/data/repository/product/product.dart';
+import 'package:customer/data/repository/profile/profile.dart';
 import 'package:customer/data/repository/shop/shop.dart';
+import 'package:customer/data/source/account_details/account_details_api_service.dart';
 import 'package:customer/data/source/address/address_api_service.dart';
 import 'package:customer/data/source/auth/auth_api_service.dart';
 import 'package:customer/data/source/cart/cart_api_service.dart';
 import 'package:customer/data/source/product/product_api_service.dart';
+import 'package:customer/data/source/profile/profile_api_service.dart';
 import 'package:customer/data/source/shop/shop_api_service.dart';
+import 'package:customer/domain/account_details/repository/account_details.dart';
+import 'package:customer/domain/account_details/usecases/add_account_details.dart';
 import 'package:customer/domain/address/repository/address.dart';
 import 'package:customer/domain/address/usecases/get_adderss_list_usecase.dart';
 import 'package:customer/domain/address/usecases/get_default_address_usecase.dart';
@@ -28,10 +34,13 @@ import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
 import 'package:customer/domain/cart/usecases/modify_cart_usecase.dart';
 import 'package:customer/domain/product/repository/product.dart';
 import 'package:customer/domain/product/usecases/product_details_usecase.dart';
+import 'package:customer/domain/profile/repository/profile.dart';
+import 'package:customer/domain/profile/usecases/profile_usecase.dart';
 import 'package:customer/domain/shop/repository/shop.dart';
 import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
 import 'package:customer/main.dart';
 import 'package:customer/presentation/cart_details/widget/bill_summary/bloc/bill_summary_bloc.dart';
+import 'package:customer/presentation/profile/pages/user_details/bloc/profile_bloc.dart';
 import 'package:customer/presentation/shop_details/page/product_details/bloc/add_to_cart/add_to_cart_bloc.dart';
 import 'package:get_it/get_it.dart';
 
@@ -44,8 +53,10 @@ void setupServiceLocator() {
   _registerShop();
   _registerProduct();
   _registerCart();
+  _registerProfile();
   _registerRefreshServiceForCart();
   _registerRefreshServiceForBillSummary();
+  _registerAccountDetails();
 }
 
 void _registerCore() {
@@ -257,4 +268,59 @@ void _registerRefreshServiceForCart() {
 void _registerRefreshServiceForBillSummary() {
   sl.registerLazySingleton<BillSummaryRefreshService>(
       () => BillSummaryRefreshService());
+}
+
+void _registerProfile() {
+  // Data sources
+  sl.registerLazySingleton<ProfileApiService>(
+    () => ProfileApiServiceImpl(
+      dioClient: sl<DioClient>(),
+      sharedPreferences: sharedPref,
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(
+      profileApiService: sl<ProfileApiService>(),
+    ),
+  );
+
+  // Use cases for profile details
+  sl.registerLazySingleton<ProfileUseCase>(
+    () => ProfileUseCase(
+      profileRepository: sl<ProfileRepository>(),
+    ),
+  );
+
+  // Profile Bloc
+  sl.registerLazySingleton<ProfileBloc>(
+    () => ProfileBloc(
+      profileUseCase: sl<ProfileUseCase>(),
+    ),
+  );
+}
+
+void _registerAccountDetails() {
+  // Data sources
+  sl.registerLazySingleton<AccountDetailsApiService>(
+    () => AccountDetailsApiServiceImpl(
+      dioClient: sl<DioClient>(),
+      sharedPreferences: sharedPref,
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<AccountDetailsRepository>(
+    () => AccountDetailsRepositoryImpl(
+      accountDetailsApiService: sl<AccountDetailsApiService>(),
+    ),
+  );
+
+  // Use cases for account details
+  sl.registerLazySingleton<AddAccountDetailsUsecase>(
+    () => AddAccountDetailsUsecase(
+      accountDetailsRepository: sl<AccountDetailsRepository>(),
+    ),
+  );
 }

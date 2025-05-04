@@ -33,8 +33,8 @@ class _RecommendedCardPageState extends State<RecommendedCardPage> {
             Stack(
               children: [
                 SizedBox(
-                  width: 110,
-                  height: 70,
+                  width: 130,
+                  height: 80,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: _buildImage(),
@@ -80,8 +80,8 @@ class _RecommendedCardPageState extends State<RecommendedCardPage> {
               child: Text(
                 widget.shopListModel.shopName,
                 style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                   color: Colors.black,
                 ),
                 maxLines: 1,
@@ -89,8 +89,13 @@ class _RecommendedCardPageState extends State<RecommendedCardPage> {
               ),
             ),
             Text(
-              " ${widget.shopListModel.distance} ${widget.shopListModel.distanceIn}",
+              "${widget.shopListModel.distance} ${widget.shopListModel.distanceIn}",
               maxLines: 2,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.black54,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ],

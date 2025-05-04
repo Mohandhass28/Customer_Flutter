@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:customer/data/models/shop/shop_list/shop_list_model.dart';
+import 'package:customer/data/models/shop/shop_list/shop_list_response_model.dart';
 import 'package:customer/domain/shop/entities/shop_list/shop_list_params.dart';
 import 'package:customer/domain/shop/entities/wish_list_param.dart';
 import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
@@ -29,10 +30,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       },
       (shopList) {
         emit(
-          state.copyWith(
-            status: HomeStatus.success,
-            shopList: shopList as List<ShopListModel>,
-          ),
+          state.copyWith(status: HomeStatus.success, shopList: shopList),
         );
       },
     );
@@ -41,8 +39,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _addRemoveShopWishlist(
       AddRemoveShopWishlist event, Emitter<HomeState> emit) async {
     final oldshopList = state.shopList;
-    final shop =
-        oldshopList?.firstWhere((element) => element.id == event.shopId);
+    final shop = oldshopList?.shopList
+        .firstWhere((element) => element.id == event.shopId);
     emit(state.copyWith(status: HomeStatus.loading));
     final result = await _shopListUsecase
         .addRemoveShopWishlist(WishListParams(shopId: event.shopId));
@@ -61,7 +59,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
         if (shop != null) {
           final updatedShop = shop.copyWith(isWishlist: event.isWishlist);
-          final updatedShopList = oldshopList?.map((element) {
+          final updatedShopList = oldshopList?.shopList.map((element) {
             if (element.id == event.shopId) {
               return updatedShop;
             }
@@ -70,7 +68,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
           emit(
             state.copyWith(
-              shopList: updatedShopList,
+              shopList: oldshopList?.copyWith(shopList: updatedShopList),
               status: HomeStatus.success,
             ),
           );

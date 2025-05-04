@@ -1,9 +1,11 @@
 import 'package:customer/core/utils/index.dart';
 import 'package:customer/domain/auth/usecases/logout_usecase.dart';
+import 'package:customer/presentation/profile/pages/user_details/bloc/profile_bloc.dart';
 import 'package:customer/presentation/profile/widget/sections/sections.dart';
 import 'package:customer/presentation/profile/widget/user_details/user_details.dart';
 import 'package:customer/service_locator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfilePage extends StatefulWidget {

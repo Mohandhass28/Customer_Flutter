@@ -56,14 +56,14 @@ class _UserDetailsState extends State<UserDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Edit",
+                      "Edit Profile",
                       style: TextStyle(
                         color: AppColor.primaryColor,
                       ),
                     ),
                     Icon(
                       Icons.edit,
-                      size: 15,
+                      size: 16,
                       color: AppColor.primaryColor,
                     ),
                   ],

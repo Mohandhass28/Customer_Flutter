@@ -6,6 +6,7 @@ import 'package:customer/presentation/tabs/page/home/bloc/home_bloc.dart';
 import 'package:customer/presentation/tabs/widget/Carousel_slider_widget/Carousel_slider_widget.dart';
 import 'package:customer/presentation/tabs/widget/Categories_card/Categories_card.dart';
 import 'package:customer/presentation/tabs/widget/header/header_widget.dart';
+import 'package:customer/presentation/tabs/widget/product_card/product_cart.dart';
 import 'package:customer/presentation/tabs/widget/recommendedOrFavoriteTab/recommendedOrFavoriteTab.dart';
 import 'package:customer/presentation/tabs/widget/recommended_card/recommended_card_page.dart';
 import 'package:customer/service_locator.dart';
@@ -80,7 +81,7 @@ class _HomePageState extends State<HomePage> {
         ..add(
           GetShopListEvent(
             params: ShopListParams(
-                type: "food", //food, grocery
+                type: "", //food, grocery
                 latitude: 22.584761,
                 searchValue: "",
                 longitude: 88.473778),
@@ -89,11 +90,14 @@ class _HomePageState extends State<HomePage> {
       child: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {},
         builder: (context, state) {
+          debugPrint(state.shopList?.shopCategoryList.toString());
           return Scaffold(
             body: SingleChildScrollView(
+              key: PageStorageKey('home_scroll'),
               child: Column(
                 children: [
-                  HeaderWidget(),
+                  // Use a unique key for each HeaderWidget instance
+                  HeaderWidget(key: ValueKey('home_header')),
                   SizedBox(height: 15),
                   CarouselSliderWidget(),
                   SizedBox(height: 15),
@@ -148,17 +152,19 @@ class _HomePageState extends State<HomePage> {
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: state.shopList?.length ?? 0,
+                      itemCount: state.shopList?.shopList.length ?? 0,
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
-                        if (state.shopList![index].isWishlist == 0 &&
+                        // Safe to use ! here since we check length in itemCount
+                        if (state.shopList!.shopList[index].isWishlist == 0 &&
                             activeTab == "Favorites") {
                           return Container();
                         }
                         return Padding(
                           padding: EdgeInsets.only(right: 16),
                           child: RecommendedCardPage(
-                            shopListModel: state.shopList![index],
+                            shopListModel: state.shopList!.shopList[
+                                index], // This is safe because we check itemCount
                             homeBloc: _homeBloc,
                           ),
                         );
@@ -168,10 +174,60 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(height: 30),
                   Text("Categories"),
                   SizedBox(height: 30),
-                  Text("What's on your mind?"),
+                  Text(
+                    "What's on your mind?",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  // Add Container with constraints to ensure visibility
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceAround,
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: (state.shopList?.shopCategoryList.isNotEmpty ==
+                              true)
+                          ? state.shopList!.shopCategoryList.map((category) {
+                              return CategoriesCard(
+                                id: category.id,
+                                name: category.name,
+                                image: category.image ?? "",
+                              );
+                            }).toList()
+                          : [
+                              // Fallback categories when list is empty or null
+                              CategoriesCard(
+                                id: 1,
+                                name: "Food",
+                                image: "",
+                              ),
+                              CategoriesCard(
+                                id: 2,
+                                name: "Grocery",
+                                image: "",
+                              ),
+                              CategoriesCard(
+                                id: 3,
+                                name: "Beverages",
+                                image: "",
+                              ),
+                            ],
+                    ),
+                  ),
+
                   SizedBox(height: 30),
-                  CategoriesCard(),
-                  SizedBox(height: 30),
+
+                  ...state.shopList?.shopList.map((shop) {
+                        return ProductCart(
+                          product: shop,
+                        );
+                      }).toList() ??
+                      [],
                 ],
               ),
             ),
