@@ -14,6 +14,7 @@ import 'package:customer/domain/product/usecases/product_details_usecase.dart';
 import 'package:customer/presentation/cart_details/bloc/cart_details_bloc.dart';
 import 'package:customer/presentation/shop_details/page/product_details/bloc/add_to_cart/add_to_cart_bloc.dart';
 import 'package:customer/presentation/shop_details/page/product_details/bloc/product_details/product_details_bloc.dart';
+import 'package:customer/presentation/shop_details/page/product_details/widget/Add_Controller/add_controller.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Option/bloc/option_bloc.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Option/options_widget.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Variant/bloc/variant_bloc.dart';
@@ -50,6 +51,10 @@ class ProductDetails extends State<_ProductDetailsPopup> {
     final CartDetailsBloc cartDetailsBloc = CartDetailsBloc(
       modifyCartUsecase: sl<ModifyCartUsecase>(),
     );
+
+    final CartListBloc cartListBloc = sl<CartListBloc>();
+
+    int quantity = 0;
 
     showModalBottomSheet(
       context: context,
@@ -100,6 +105,9 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                 BlocProvider.value(
                   value: cartDetailsBloc,
                 ),
+                BlocProvider.value(
+                  value: cartListBloc,
+                ),
               ],
               child: MultiBlocListener(
                 listeners: [
@@ -136,10 +144,7 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                       }
                     },
                   ),
-                  BlocListener<VariantBloc, VariantState>(
-                    listener: (context, state) {},
-                  ),
-                  BlocListener<OptionBloc, OptionState>(
+                  BlocListener<CartListBloc, CartListState>(
                     listener: (context, state) {},
                   ),
                   BlocListener<AddToCartBloc, AddToCartState>(
@@ -303,6 +308,165 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                                     ),
                                     const Text("Select any 1 option"),
                                     const SizedBox(height: 16),
+                                    BlocBuilder<CartListBloc, CartListState>(
+                                      builder: (context, cartListState) {
+                                        if (cartListState.status ==
+                                            CartListStatus.loading) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        }
+
+                                        if (cartListState.status ==
+                                            CartListStatus.failure) {
+                                          return Center(
+                                            child: Text(
+                                              cartListState.errorMessage ??
+                                                  "Unknown error",
+                                            ),
+                                          );
+                                        }
+
+                                        // Check if the product exists in the cart
+                                        final bool productExists =
+                                            cartListState.cartList != null &&
+                                                cartListState.cartList!.cartData
+                                                    .any(
+                                                  (element) =>
+                                                      element
+                                                          .productDetails.id ==
+                                                      productId,
+                                                );
+
+                                        // Get product if it exists, otherwise use 0 values
+                                        final int productIdFromCart =
+                                            productExists &&
+                                                    cartListState.cartList !=
+                                                        null
+                                                ? cartListState
+                                                    .cartList!.cartData
+                                                    .where(
+                                                      (element) =>
+                                                          element.productDetails
+                                                              .id ==
+                                                          productId,
+                                                    )
+                                                    .first
+                                                    .productDetails
+                                                    .id
+                                                : 0;
+                                        quantity = productExists &&
+                                                cartListState.cartList != null
+                                            ? cartListState.cartList!.cartData
+                                                .where(
+                                                  (element) =>
+                                                      element
+                                                          .productDetails.id ==
+                                                      productId,
+                                                )
+                                                .first
+                                                .quantity
+                                                .toInt()
+                                            : 0;
+                                        return StatefulBuilder(
+                                          builder: (context, setStates) {
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Row(
+                                                  spacing: 8,
+                                                  children: [
+                                                    Container(
+                                                      width: 60,
+                                                      height: 60,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      child: Image.network(
+                                                        productDetailsBloc
+                                                                .state
+                                                                .productDetails
+                                                                ?.productData
+                                                                .productDetails
+                                                                .image ??
+                                                            "",
+                                                        fit: BoxFit.contain,
+                                                        height: 60,
+                                                        width: 60,
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          return Image.asset(
+                                                            "assets/images/Seller_logo.png",
+                                                            height: 60,
+                                                            width: 60,
+                                                            fit: BoxFit.contain,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      productDetailsBloc
+                                                              .state
+                                                              .productDetails
+                                                              ?.productData
+                                                              .productDetails
+                                                              .name ??
+                                                          "",
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      productDetailsBloc
+                                                              .state
+                                                              .productDetails
+                                                              ?.productData
+                                                              .productDetails
+                                                              .unit ??
+                                                          "",
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Text(
+                                                  "₹${productDetailsBloc.state.productDetails?.productData.productDetails.price ?? ""}",
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                AddController(
+                                                  id: productIdFromCart,
+                                                  quantity: quantity,
+                                                  incrementOnPress: () {
+                                                    setStates(() {
+                                                      quantity++;
+                                                    });
+                                                  },
+                                                  decrementOnPress: () {
+                                                    if (quantity > 0) {
+                                                      setStates(() {
+                                                        quantity--;
+                                                      });
+                                                    }
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
                                     ...state.productDetails!.productData
                                         .productVariants
                                         .map(
@@ -359,6 +523,7 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                                 AddItemToCartEvent(
                                   params: AddToCartParams(
                                     productId: productId,
+                                    quantity: quantity,
                                     variantAddCartModel:
                                         variantBloc.state.variantList,
                                     optionAddCartModel:
@@ -391,16 +556,36 @@ class ProductDetails extends State<_ProductDetailsPopup> {
 
   get quentityForVariant => (ProductVariantModel variant) {
         final cartListBloc = sl<CartListBloc>();
-        if (cartListBloc.state.cartList != null) {
+        if (cartListBloc.state.cartList != null &&
+            cartListBloc.state.cartList!.cartData.isNotEmpty) {
           try {
-            return cartListBloc.state.cartList!.cartData
-                .firstWhere(
-                  (element) => element.productDetails.id == variant.productId,
-                )
-                .productVariant
-                .firstWhere(
-                  (element) => element.id == variant.id,
-                )
+            // Check if the product exists in the cart
+            final bool productExists =
+                cartListBloc.state.cartList!.cartData.any(
+              (element) => element.productDetails.id == variant.productId,
+            );
+
+            if (!productExists) {
+              return 0;
+            }
+
+            final cartItem = cartListBloc.state.cartList!.cartData
+                .where(
+                    (element) => element.productDetails.id == variant.productId)
+                .first;
+
+            // Check if the variant exists in the product
+            final bool variantExists = cartItem.productVariant.any(
+              (element) => element.id == variant.id,
+            );
+
+            if (!variantExists) {
+              return 0;
+            }
+
+            return cartItem.productVariant
+                .where((element) => element.id == variant.id)
+                .first
                 .quantity;
           } catch (e) {
             return 0;
@@ -410,16 +595,35 @@ class ProductDetails extends State<_ProductDetailsPopup> {
       };
   get quentityForOption => (ProductOptionModel option, int productId) {
         final cartListBloc = sl<CartListBloc>();
-        if (cartListBloc.state.cartList != null) {
+        if (cartListBloc.state.cartList != null &&
+            cartListBloc.state.cartList!.cartData.isNotEmpty) {
           try {
-            return cartListBloc.state.cartList!.cartData
-                .firstWhere(
-                  (element) => element.productDetails.id == productId,
-                )
-                .productVariant
-                .firstWhere(
-                  (element) => element.id == option.id,
-                )
+            // Check if the product exists in the cart
+            final bool productExists =
+                cartListBloc.state.cartList!.cartData.any(
+              (element) => element.productDetails.id == productId,
+            );
+
+            if (!productExists) {
+              return 0;
+            }
+
+            final cartItem = cartListBloc.state.cartList!.cartData
+                .where((element) => element.productDetails.id == productId)
+                .first;
+
+            // Check if the option exists in the product's variants
+            final bool optionExists = cartItem.productVariant.any(
+              (element) => element.id == option.id,
+            );
+
+            if (!optionExists) {
+              return 0;
+            }
+
+            return cartItem.productVariant
+                .where((element) => element.id == option.id)
+                .first
                 .quantity;
           } catch (e) {
             return 0;
@@ -469,206 +673,203 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                       child: CircularProgressIndicator(),
                     );
                   }
-                  return Container(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: ListView(
-                            controller: scrollController,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  state.productDetails?.productData
-                                          .productDetails.image ??
-                                      "",
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return const CircularProgressIndicator();
-                                  },
-                                  fit: BoxFit.fill,
-                                  height: 300,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      "assets/images/Seller_logo.png",
-                                      fit: BoxFit.fill,
-                                    );
-                                  },
-                                ),
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: ListView(
+                          controller: scrollController,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.network(
+                                state.productDetails?.productData.productDetails
+                                        .image ??
+                                    "",
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const CircularProgressIndicator();
+                                },
+                                fit: BoxFit.fill,
+                                height: 300,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    "assets/images/Seller_logo.png",
+                                    fit: BoxFit.fill,
+                                  );
+                                },
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 20,
-                                  right: 20,
-                                  top: 25,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      state.productDetails?.productData
-                                              .productDetails.name ??
-                                          "",
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      "₹ ${state.productDetails?.productData.productDetails.price}" ??
-                                          "",
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                        "${state.productDetails?.productData.productDetails.qty} ${state.productDetails?.productData.productDetails.unit}"),
-                                    const SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          state.productDetails!.productData
-                                                      .avgRating >
-                                                  0
-                                              ? Icons.star
-                                              : Icons.star_border,
-                                          color: const Color.fromARGB(
-                                              255, 228, 212, 64),
-                                          size: 26,
-                                        ),
-                                        Icon(
-                                          state.productDetails!.productData
-                                                      .avgRating >
-                                                  1
-                                              ? Icons.star
-                                              : Icons.star_border,
-                                          color: const Color.fromARGB(
-                                              255, 228, 212, 64),
-                                          size: 26,
-                                        ),
-                                        Icon(
-                                          state.productDetails!.productData
-                                                      .avgRating >
-                                                  2
-                                              ? Icons.star
-                                              : Icons.star_border,
-                                          color: const Color.fromARGB(
-                                              255, 228, 212, 64),
-                                          size: 26,
-                                        ),
-                                        Icon(
-                                          state.productDetails!.productData
-                                                      .avgRating >
-                                                  3
-                                              ? Icons.star
-                                              : Icons.star_border,
-                                          color: const Color.fromARGB(
-                                              255, 228, 212, 64),
-                                          size: 26,
-                                        ),
-                                        Icon(
-                                          state.productDetails!.productData
-                                                      .avgRating >
-                                                  4
-                                              ? Icons.star
-                                              : Icons.star_border,
-                                          color: const Color.fromARGB(
-                                              255, 228, 212, 64),
-                                          size: 26,
-                                        ),
-                                        Text(
-                                          "${state.productDetails?.productData.totalCount} Ratings",
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
-                                    ExpandableText(
-                                      text: state.productDetails?.productData
-                                              .productDetails.description ??
-                                          "",
-                                      maxLines: 3,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      expandButtonStyle: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColor.primaryColor,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Wrap(
-                                      alignment: WrapAlignment.spaceAround,
-                                      spacing: 10,
-                                      runSpacing: 10,
-                                      children: [
-                                        _boxDesign(
-                                          context: context,
-                                          icon: state
-                                                      .productDetails!
-                                                      .productData
-                                                      .productDetails
-                                                      .deliveryMode ==
-                                                  1
-                                              ? Icons.local_shipping
-                                              : state
-                                                          .productDetails!
-                                                          .productData
-                                                          .productDetails
-                                                          .deliveryMode ==
-                                                      2
-                                                  ? Icons.local_shipping
-                                                  : Icons.delivery_dining,
-                                          title: "Delivery",
-                                          subtitle: state
-                                                      .productDetails!
-                                                      .productData
-                                                      .productDetails
-                                                      .deliveryMode ==
-                                                  1
-                                              ? "Normal Delivery"
-                                              : state
-                                                          .productDetails!
-                                                          .productData
-                                                          .productDetails
-                                                          .deliveryMode ==
-                                                      2
-                                                  ? "Heavy Delivery"
-                                                  : "Quick Delivery",
-                                        ),
-                                        _boxDesign(
-                                          context: context,
-                                          icon: Icons.warning_sharp,
-                                          title: state
-                                                      .productDetails!
-                                                      .productData
-                                                      .productDetails
-                                                      .prdCoverBy ==
-                                                  3
-                                              ? "Guaranty"
-                                              : "Warranty",
-                                          subtitle:
-                                              "${state.productDetails?.productData.productDetails.prdCoverNum == 1 ? "Months" : "Years"} ${state.productDetails?.productData.productDetails.prdCoverDuration}",
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                top: 25,
                               ),
-                            ],
-                          ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    state.productDetails?.productData
+                                            .productDetails.name ??
+                                        "",
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    "₹ ${state.productDetails?.productData.productDetails.price ?? ""}",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                      "${state.productDetails?.productData.productDetails.qty} ${state.productDetails?.productData.productDetails.unit}"),
+                                  const SizedBox(height: 10),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        state.productDetails!.productData
+                                                    .avgRating >
+                                                0
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: const Color.fromARGB(
+                                            255, 228, 212, 64),
+                                        size: 26,
+                                      ),
+                                      Icon(
+                                        state.productDetails!.productData
+                                                    .avgRating >
+                                                1
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: const Color.fromARGB(
+                                            255, 228, 212, 64),
+                                        size: 26,
+                                      ),
+                                      Icon(
+                                        state.productDetails!.productData
+                                                    .avgRating >
+                                                2
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: const Color.fromARGB(
+                                            255, 228, 212, 64),
+                                        size: 26,
+                                      ),
+                                      Icon(
+                                        state.productDetails!.productData
+                                                    .avgRating >
+                                                3
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: const Color.fromARGB(
+                                            255, 228, 212, 64),
+                                        size: 26,
+                                      ),
+                                      Icon(
+                                        state.productDetails!.productData
+                                                    .avgRating >
+                                                4
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: const Color.fromARGB(
+                                            255, 228, 212, 64),
+                                        size: 26,
+                                      ),
+                                      Text(
+                                        "${state.productDetails?.productData.totalCount} Ratings",
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  ExpandableText(
+                                    text: state.productDetails?.productData
+                                            .productDetails.description ??
+                                        "",
+                                    maxLines: 3,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    expandButtonStyle: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColor.primaryColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Wrap(
+                                    alignment: WrapAlignment.spaceAround,
+                                    spacing: 10,
+                                    runSpacing: 10,
+                                    children: [
+                                      _boxDesign(
+                                        context: context,
+                                        icon: state
+                                                    .productDetails!
+                                                    .productData
+                                                    .productDetails
+                                                    .deliveryMode ==
+                                                1
+                                            ? Icons.local_shipping
+                                            : state
+                                                        .productDetails!
+                                                        .productData
+                                                        .productDetails
+                                                        .deliveryMode ==
+                                                    2
+                                                ? Icons.local_shipping
+                                                : Icons.delivery_dining,
+                                        title: "Delivery",
+                                        subtitle: state
+                                                    .productDetails!
+                                                    .productData
+                                                    .productDetails
+                                                    .deliveryMode ==
+                                                1
+                                            ? "Normal Delivery"
+                                            : state
+                                                        .productDetails!
+                                                        .productData
+                                                        .productDetails
+                                                        .deliveryMode ==
+                                                    2
+                                                ? "Heavy Delivery"
+                                                : "Quick Delivery",
+                                      ),
+                                      _boxDesign(
+                                        context: context,
+                                        icon: Icons.warning_sharp,
+                                        title: state
+                                                    .productDetails!
+                                                    .productData
+                                                    .productDetails
+                                                    .prdCoverBy ==
+                                                3
+                                            ? "Guaranty"
+                                            : "Warranty",
+                                        subtitle:
+                                            "${state.productDetails?.productData.productDetails.prdCoverNum == 1 ? "Months" : "Years"} ${state.productDetails?.productData.productDetails.prdCoverDuration}",
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -720,5 +921,11 @@ class ProductDetails extends State<_ProductDetailsPopup> {
         ),
       ),
     );
+  }
+}
+
+extension on String {
+  toInt() {
+    return int.tryParse(this) ?? 0;
   }
 }

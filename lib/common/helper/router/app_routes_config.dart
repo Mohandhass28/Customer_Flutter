@@ -35,6 +35,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../data/models/auth/send_otp_model/send_otp_model.dart';
+import '../../../main.dart';
 import '../../../presentation/tabs/page/home/page/home_page.dart';
 
 class AppRoutesConfig {
@@ -42,14 +43,52 @@ class AppRoutesConfig {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final shellNavigatorKey = GlobalKey<NavigatorState>();
 
+  // List of paths that don't require authentication
+  static final List<String> _publicPaths = [
+    '/',
+    '/login',
+    '/otp',
+  ];
+
   static final router = GoRouter(
     initialLocation: '/',
     navigatorKey: rootNavigatorKey,
     debugLogDiagnostics: true, // Enable logging for debugging
-    // Add redirect to handle initial navigation
-    redirect: (BuildContext context, GoRouterState state) {
-      // Allow the splash page to handle navigation
-      return null; // Let the routes handle navigation
+    // Add redirect to handle initial navigation and authentication
+    redirect: (context, state) {
+      // Check if the current path is public (doesn't require auth)
+      final isPublicPath = _publicPaths.contains(state.matchedLocation);
+
+      // If it's the splash page, let it handle its own navigation
+      if (state.matchedLocation == '/') {
+        return null;
+      }
+
+      // Get token and number from shared preferences directly
+      final token = sharedPref.getString('token');
+      final number = sharedPref.getString('number');
+      // User is authenticated only if both token and number exist
+      final isAuthenticated = token != null &&
+          token.isNotEmpty &&
+          number != null &&
+          number.isNotEmpty;
+
+      // If user is not authenticated and trying to access a protected route,
+      // redirect to login
+      if (!isAuthenticated && !isPublicPath) {
+        return '/login';
+      }
+
+      // If user is authenticated and trying to access login or otp,
+      // redirect to home
+      if (isAuthenticated &&
+          (state.matchedLocation == '/login' ||
+              state.matchedLocation == '/otp')) {
+        return '/home';
+      }
+
+      // No redirect needed
+      return null;
     },
     routes: [
       GoRoute(

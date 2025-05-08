@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:customer/domain/favourites_product_list/usecases/get_fav_product_list_usecase.dart';
 import 'package:customer/domain/shop/entities/shop_list/shop_list_params.dart';
 import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
 import 'package:customer/presentation/tabs/page/home/bloc/home_bloc.dart';
@@ -37,7 +38,9 @@ class _FoodPageState extends State<FoodPage> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _homeBloc = HomeBloc(shopListUsecase: sl<ShopListUsecase>());
+    _homeBloc = HomeBloc(
+        shopListUsecase: sl<ShopListUsecase>(),
+        getFavProductListUsecase: sl<GetFavProductListUsecase>());
   }
 
   void _onTabChanged(String tab) {

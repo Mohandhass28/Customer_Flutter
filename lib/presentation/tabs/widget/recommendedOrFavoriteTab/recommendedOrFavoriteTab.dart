@@ -29,13 +29,12 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
             ),
           ),
           onPressed: () {
-            widget.onTabChanged("Recommended");
+            widget.onTabChanged("Shop");
           },
           child: Container(
-            constraints: BoxConstraints(minWidth: 130),
             decoration: BoxDecoration(
               border: Border.all(
-                color: widget.activeTab == "Recommended"
+                color: widget.activeTab == "Shop"
                     ? AppColor.secondaryColor
                     : Colors.transparent,
                 width: 1,
@@ -47,16 +46,16 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
               ),
             ),
             padding: EdgeInsets.only(
-              right: 15,
-              left: 15,
+              right: 30,
+              left: 30,
               top: 3,
               bottom: 3,
             ),
             child: Center(
               child: Text(
-                "Recommended",
+                "Shop",
                 style: TextStyle(
-                  color: widget.activeTab == "Recommended"
+                  color: widget.activeTab == "Shop"
                       ? AppColor.primaryColor
                       : Colors.black,
                   fontWeight: FontWeight.w500,
@@ -68,7 +67,7 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
         ),
         TextButton(
           onPressed: () {
-            widget.onTabChanged("Favorites");
+            widget.onTabChanged("Products");
           },
           style: ButtonStyle(
             padding: WidgetStateProperty.all<EdgeInsets>(
@@ -76,10 +75,9 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
             ),
           ),
           child: Container(
-            constraints: BoxConstraints(minWidth: 130),
             decoration: BoxDecoration(
               border: Border.all(
-                color: widget.activeTab == "Favorites"
+                color: widget.activeTab == "Products"
                     ? AppColor.primaryColor
                     : Colors.transparent,
                 width: 1,
@@ -91,16 +89,16 @@ class _RecommendedorfavoritetabState extends State<Recommendedorfavoritetab> {
               ),
             ),
             padding: EdgeInsets.only(
-              right: 15,
-              left: 15,
+              right: 30,
+              left: 30,
               top: 3,
               bottom: 3,
             ),
             child: Center(
               child: Text(
-                "Favorites",
+                "Products",
                 style: TextStyle(
-                  color: widget.activeTab == "Favorites"
+                  color: widget.activeTab == "Products"
                       ? AppColor.primaryColor
                       : Colors.black,
                   fontWeight: FontWeight.w500,

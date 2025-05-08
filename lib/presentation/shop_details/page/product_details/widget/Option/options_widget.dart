@@ -33,6 +33,7 @@ class _OptionsWidgetState extends State<OptionsWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
+                spacing: 8,
                 children: [
                   Container(
                     width: 100,
@@ -56,7 +57,15 @@ class _OptionsWidgetState extends State<OptionsWidget> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  Text(
+                    productDetailsBloc.state.productDetails?.productData
+                            .productDetails.name ??
+                        "",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   Text(
                     widget.option.unit,
                     style: const TextStyle(

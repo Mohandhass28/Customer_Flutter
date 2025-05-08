@@ -41,6 +41,7 @@ class _VariantWidgetState extends State<VariantWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
+                spacing: 8,
                 children: [
                   Container(
                     width: 60,
@@ -63,7 +64,15 @@ class _VariantWidgetState extends State<VariantWidget> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  Text(
+                    productDetailsBloc.state.productDetails?.productData
+                            .productDetails.name ??
+                        "",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   Text(
                     widget.variant.unit,
                     style: const TextStyle(

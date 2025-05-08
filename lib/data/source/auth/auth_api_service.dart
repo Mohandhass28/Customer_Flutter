@@ -110,7 +110,9 @@ class AuthApiServiceImpl implements AuthApiService {
   @override
   Future<Either<Failure, bool>> logout() async {
     try {
+      // Remove both token and phone number to prevent auto-login
       await _sharedPreferences.remove('token');
+      await _sharedPreferences.remove('number');
       return const Right(true);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));

@@ -23,3 +23,10 @@ class AddRemoveShopWishlist extends HomeEvent {
   @override
   List<Object> get props => [];
 }
+
+class GetFavProductListEvent extends HomeEvent {
+  const GetFavProductListEvent();
+
+  @override
+  List<Object> get props => [];
+}

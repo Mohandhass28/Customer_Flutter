@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:customer/data/models/favourites_product_list/fav_product_model.dart';
+import 'package:customer/domain/favourites_product_list/usecases/get_fav_product_list_usecase.dart';
 import 'package:customer/domain/shop/entities/shop_list/shop_list_params.dart';
 import 'package:customer/domain/shop/usecases/shop_list_usecase.dart';
 import 'package:customer/presentation/tabs/page/home/bloc/home_bloc.dart';
 import 'package:customer/presentation/tabs/widget/Carousel_slider_widget/Carousel_slider_widget.dart';
 import 'package:customer/presentation/tabs/widget/Categories_card/Categories_card.dart';
+import 'package:customer/presentation/tabs/widget/Fav_Product_Card/Fav_Product_Cart.dart';
 import 'package:customer/presentation/tabs/widget/header/header_widget.dart';
 import 'package:customer/presentation/tabs/widget/product_card/product_cart.dart';
 import 'package:customer/presentation/tabs/widget/recommendedOrFavoriteTab/recommendedOrFavoriteTab.dart';
@@ -28,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   Timer? _debounceTimer;
   late HomeBloc _homeBloc;
 
-  String activeTab = "Recommended";
+  String activeTab = "Shop";
 
   void _onTabChanged(String tab) {
     setState(() {
@@ -49,7 +52,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _homeBloc = HomeBloc(shopListUsecase: sl<ShopListUsecase>());
+    _homeBloc = HomeBloc(
+        shopListUsecase: sl<ShopListUsecase>(),
+        getFavProductListUsecase: sl<GetFavProductListUsecase>());
   }
 
   void _onSearchChanged() {
@@ -86,7 +91,8 @@ class _HomePageState extends State<HomePage> {
                 searchValue: "",
                 longitude: 88.473778),
           ),
-        ),
+        )
+        ..add(GetFavProductListEvent()),
       child: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -94,82 +100,86 @@ class _HomePageState extends State<HomePage> {
           return Scaffold(
             body: SingleChildScrollView(
               key: PageStorageKey('home_scroll'),
-              child: Column(
+              child: Flex(
+                direction: Axis.vertical,
                 children: [
                   // Use a unique key for each HeaderWidget instance
                   HeaderWidget(key: ValueKey('home_header')),
                   SizedBox(height: 15),
                   CarouselSliderWidget(),
                   SizedBox(height: 15),
-                  // Stack(
-                  //   children: [
-                  //     ListMapPage(),
-                  //     Positioned(
-                  //       top: 20,
-                  //       left: 20,
-                  //       right: 20,
-                  //       child: TextField(
-                  //         controller: _searchController,
-                  //         decoration: InputDecoration(
-                  //           hintText: 'Search here...',
-                  //           prefixIcon: Icon(Icons.search),
-                  //           suffixIcon: IconButton(
-                  //             icon: Icon(Icons.clear),
-                  //             onPressed: () {
-                  //               // Clear search text
-                  //             },
-                  //           ),
-                  //           border: OutlineInputBorder(
-                  //             borderRadius: BorderRadius.circular(10),
-                  //             borderSide: BorderSide(color: Colors.white),
-                  //           ),
-                  //           enabledBorder: OutlineInputBorder(
-                  //             borderRadius: BorderRadius.circular(10),
-                  //             borderSide: BorderSide(color: Colors.white),
-                  //           ),
-                  //           focusedBorder: OutlineInputBorder(
-                  //             borderRadius: BorderRadius.circular(10),
-                  //             borderSide: BorderSide(color: Colors.blue),
-                  //           ),
-                  //           filled: true,
-                  //           fillColor: Colors.white,
-                  //           contentPadding: EdgeInsets.symmetric(
-                  //             horizontal: 9,
-                  //             vertical: 12,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  // SizedBox(height: 10),
+
                   Text("For You"),
                   Recommendedorfavoritetab(
                       activeTab: activeTab, onTabChanged: _onTabChanged),
                   SizedBox(height: 30),
                   Container(
-                    height: 150, // Adjust this height based on your needs
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: state.shopList?.shopList.length ?? 0,
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) {
-                        // Safe to use ! here since we check length in itemCount
-                        if (state.shopList!.shopList[index].isWishlist == 0 &&
-                            activeTab == "Favorites") {
-                          return Container();
-                        }
-                        return Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: RecommendedCardPage(
-                            shopListModel: state.shopList!.shopList[
-                                index], // This is safe because we check itemCount
-                            homeBloc: _homeBloc,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: IntrinsicHeight(
+                            child: Row(
+                              children: List.generate(
+                                state.shopList?.shopList.length ?? 0,
+                                (index) {
+                                  if (state.shopList!.shopList.isNotEmpty) {
+                                    if (state.shopList!.shopList[index]
+                                                .isWishlist ==
+                                            1 &&
+                                        activeTab == "Shop") {
+                                      return Padding(
+                                        padding: EdgeInsets.only(right: 16),
+                                        child: RecommendedCardPage(
+                                          shopListModel: state
+                                                  .shopList!.shopList[
+                                              index], // This is safe because we check itemCount
+                                          homeBloc: _homeBloc,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                  return Container();
+                                },
+                              ),
+                            ),
                           ),
                         );
                       },
                     ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: LayoutBuilder(builder: (
+                      context,
+                      constraints,
+                    ) {
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: IntrinsicHeight(
+                          child: Row(
+                            children: List.generate(
+                              state.favProductList?.data.length ?? 0,
+                              (index) {
+                                if (state.favProductList!.data.isNotEmpty) {
+                                  if (activeTab == "Products") {
+                                    return Padding(
+                                      padding: EdgeInsets.only(right: 16),
+                                      child: FavProductCart(
+                                        product: state.favProductList!
+                                            .data[index] as FavProductModel,
+                                      ),
+                                    );
+                                  }
+                                }
+                                return Container();
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
                   ),
                   SizedBox(height: 30),
                   Text("Categories"),

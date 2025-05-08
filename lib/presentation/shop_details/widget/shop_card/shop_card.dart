@@ -222,7 +222,7 @@ class _ShopCardState extends State<ShopCard> {
                       // Add button
                       BlocBuilder<CartListBloc, CartListState>(
                         builder: (context, state) {
-                          int count = 0;
+                          int? count = 0;
                           if (state.cartList!.cartData.isEmpty) {
                             _productInCart = false;
                           } else if (state.cartList!.cartData
@@ -255,6 +255,16 @@ class _ShopCardState extends State<ShopCard> {
                                       (previousValue, element) =>
                                           previousValue + element.quantity,
                                     );
+                            count = (count +
+                                    state.cartList!.cartData
+                                        .firstWhere(
+                                          (element) =>
+                                              element.productDetails.id ==
+                                              widget.productDetails.id,
+                                        )
+                                        .quantity
+                                        ?.toInt() ??
+                                0) as int?;
                           } else {
                             _productInCart = false;
                           }
@@ -428,5 +438,11 @@ class _ShopCardState extends State<ShopCard> {
         },
       );
     }
+  }
+}
+
+extension on String {
+  toInt() {
+    return int.tryParse(this) ?? 0;
   }
 }

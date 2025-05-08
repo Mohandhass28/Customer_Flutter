@@ -8,6 +8,7 @@ import 'package:customer/data/repository/account_details/account_details.dart';
 import 'package:customer/data/repository/address/address.dart';
 import 'package:customer/data/repository/auth/auth.dart';
 import 'package:customer/data/repository/cart/cart.dart';
+import 'package:customer/data/repository/favourites_product_list/fav_product.dart';
 import 'package:customer/data/repository/product/product.dart';
 import 'package:customer/data/repository/profile/profile.dart';
 import 'package:customer/data/repository/shop/shop.dart';
@@ -15,6 +16,7 @@ import 'package:customer/data/source/account_details/account_details_api_service
 import 'package:customer/data/source/address/address_api_service.dart';
 import 'package:customer/data/source/auth/auth_api_service.dart';
 import 'package:customer/data/source/cart/cart_api_service.dart';
+import 'package:customer/data/source/favourites_product_list/fav_product_api_service.dart';
 import 'package:customer/data/source/product/product_api_service.dart';
 import 'package:customer/data/source/profile/profile_api_service.dart';
 import 'package:customer/data/source/shop/shop_api_service.dart';
@@ -32,6 +34,8 @@ import 'package:customer/domain/cart/usecases/add_to_cart_usecase.dart';
 import 'package:customer/domain/cart/usecases/cart_details_usecase.dart';
 import 'package:customer/domain/cart/usecases/cart_list_usecase.dart';
 import 'package:customer/domain/cart/usecases/modify_cart_usecase.dart';
+import 'package:customer/domain/favourites_product_list/repository/fav_product_list.dart';
+import 'package:customer/domain/favourites_product_list/usecases/get_fav_product_list_usecase.dart';
 import 'package:customer/domain/product/repository/product.dart';
 import 'package:customer/domain/product/usecases/product_details_usecase.dart';
 import 'package:customer/domain/profile/repository/profile.dart';
@@ -199,6 +203,28 @@ void _registerProduct() {
   sl.registerLazySingleton<ProductDetailsUsecase>(
     () => ProductDetailsUsecase(
       productRepository: sl<ProductRepository>(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<FavProductApiService>(
+    () => FavProductApiServiceImpl(
+      dioClient: sl<DioClient>(),
+      sharedPreferences: sharedPref,
+    ),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<FavProductRepository>(
+    () => FavProductRepositoryImpl(
+      favProductApiService: sl<FavProductApiService>(),
+    ),
+  );
+
+  // fav product list
+  sl.registerLazySingleton<GetFavProductListUsecase>(
+    () => GetFavProductListUsecase(
+      favProductRepository: sl<FavProductRepository>(),
     ),
   );
 }
