@@ -35,3 +35,54 @@ flutter build macos
 
 for linux build:
 flutter build linux
+
+## Performance Optimization Tips
+
+To improve app performance, especially in simulators:
+
+1. **Run in Release Mode**:
+
+   ```
+   flutter run --release
+   ```
+
+2. **Optimize Images**:
+
+   - Use `cacheWidth` and `cacheHeight` parameters with Image.network
+   - Implement proper loading and error states
+   - Consider using cached_network_image package
+
+3. **Reduce Rebuilds**:
+
+   - Extract widgets into smaller components
+   - Use const constructors where possible
+   - Implement shouldRebuild in custom widgets
+
+4. **Optimize Lists**:
+
+   - Use ListView.builder instead of Column with many children
+   - Set shrinkWrap: true and physics: NeverScrollableScrollPhysics for nested lists
+   - Filter data before building lists
+
+5. **Debug Performance**:
+
+   - Use Flutter DevTools to profile your app
+   - Check for jank with the Timeline view
+   - Monitor memory usage
+
+6. **Simulator-Specific Tips**:
+
+   - Reduce animations in simulator
+   - Close other resource-intensive apps
+   - Increase simulator memory (if possible)
+   - Test on real devices for accurate performance
+
+7. **Network Optimization**:
+
+   - Implement proper caching
+   - Reduce unnecessary API calls
+   - Use pagination for large data sets
+
+8. **Remove Debug Prints**:
+   - Remove all debug prints in release builds
+   - Use proper logging libraries for debugging

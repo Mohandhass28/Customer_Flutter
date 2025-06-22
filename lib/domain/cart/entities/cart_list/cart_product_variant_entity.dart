@@ -18,7 +18,7 @@ class CartProductVariantEntity extends Equatable {
   final String? productFoodType;
   final int isUnpackagePrd;
   final String? unpackagePrdUnit;
-  final String? unpackagePrdPrice;
+  final int? unpackagePrdPrice;
   final int quantity;
 
   const CartProductVariantEntity({

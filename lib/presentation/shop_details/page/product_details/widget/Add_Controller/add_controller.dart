@@ -2,17 +2,27 @@ import 'package:customer/core/config/theme/app_color.dart';
 import 'package:flutter/material.dart';
 
 class AddController extends StatefulWidget {
-  const AddController({
+  AddController({
     super.key,
     required this.id,
     required this.quantity,
     required this.incrementOnPress,
     required this.decrementOnPress,
+    required this.constraints,
+    this.padding,
+    this.borderRadius,
   });
   final int id;
   final int quantity;
+
   final Function() incrementOnPress;
   final Function() decrementOnPress;
+  final BoxConstraints? constraints;
+  final EdgeInsetsGeometry? padding;
+  BorderRadius? borderRadius = const BorderRadius.all(
+    Radius.circular(8),
+  );
+
   @override
   State<AddController> createState() => _AddControllerState();
 }
@@ -23,17 +33,15 @@ class _AddControllerState extends State<AddController> {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.buttonbgColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: widget.borderRadius,
         border: Border.all(
           color: AppColor.primaryColor,
           width: 1,
           style: BorderStyle.solid,
         ),
       ),
-      constraints: BoxConstraints(
-        maxHeight: 30,
-        maxWidth: 90,
-      ),
+      constraints: widget.constraints,
+      padding: widget.padding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

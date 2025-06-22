@@ -139,6 +139,7 @@ class _FavProductCartState extends State<FavProductCart> {
                             .map((element) => element.productDetails.id)
                             .contains(widget.product.id)) {
                           _productInCart = true;
+
                           count = state.cartList!.cartData
                               .firstWhere(
                                 (element) =>
@@ -165,6 +166,15 @@ class _FavProductCartState extends State<FavProductCart> {
                                     (previousValue, element) =>
                                         previousValue + element.quantity,
                                   );
+                          count = count +
+                              ((state.cartList!.cartData
+                                      .firstWhere(
+                                        (element) =>
+                                            element.productDetails.id ==
+                                            widget.product.id,
+                                      )
+                                      .quantity) ??
+                                  0);
                         } else {
                           _productInCart = false;
                         }

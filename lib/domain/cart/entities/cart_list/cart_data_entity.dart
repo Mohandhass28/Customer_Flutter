@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 
 class CartDataEntity extends Equatable {
   final int id;
-  final String quantity;
+  final int quantity;
   final CartProductDetailsEntity productDetails;
   final List<dynamic> productImages;
   final List<CartProductVariantEntity> productVariant;

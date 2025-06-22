@@ -20,7 +20,7 @@ class CartProductDetailsEntity extends Equatable {
   final String unpackagePrdUnit;
   final String unpackagePrdPrice;
   final bool status;
-  final String unpackagePrdQty;
+  final int unpackagePrdQty;
 
   const CartProductDetailsEntity({
     required this.id,

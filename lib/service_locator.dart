@@ -4,6 +4,7 @@ import 'package:customer/core/network/dio_client.dart';
 import 'package:customer/core/refresh_services/address/address_refresh_service.dart';
 import 'package:customer/core/refresh_services/bill_summary_refresh_service.dart';
 import 'package:customer/core/refresh_services/cart_refresh_service.dart';
+import 'package:customer/core/refresh_services/cart_visibility_service.dart';
 import 'package:customer/data/repository/account_details/account_details.dart';
 import 'package:customer/data/repository/address/address.dart';
 import 'package:customer/data/repository/auth/auth.dart';
@@ -294,6 +295,8 @@ void _registerRefreshServiceForCart() {
 void _registerRefreshServiceForBillSummary() {
   sl.registerLazySingleton<BillSummaryRefreshService>(
       () => BillSummaryRefreshService());
+  sl.registerLazySingleton<CartVisibilityService>(
+      () => CartVisibilityService());
 }
 
 void _registerProfile() {

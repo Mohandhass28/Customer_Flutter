@@ -52,15 +52,8 @@ class AppTheme {
       backgroundColor: Colors.white,
       elevation: 0.0,
     ),
-    dialogTheme: DialogTheme(
-      backgroundColor: Colors.white,
-      elevation: 0.0,
-    ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: Colors.white,
-      elevation: 0.0,
-    ),
-    cardTheme: CardTheme(
       elevation: 0.0,
     ),
     chipTheme: ChipThemeData(

@@ -1,17 +1,25 @@
 import 'package:customer/common/models/cart/variant_add_cart.dart';
 import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
+import 'package:customer/core/config/assets/app_images.dart';
 import 'package:customer/data/models/product/product_details/index.dart';
 import 'package:customer/presentation/shop_details/page/product_details/bloc/product_details/product_details_bloc.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Add_Controller/add_controller.dart';
+import 'package:customer/presentation/shop_details/page/product_details/widget/Product_controller/product_controller.dart';
 import 'package:customer/presentation/shop_details/page/product_details/widget/Variant/bloc/variant_bloc.dart';
 import 'package:customer/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class VariantWidget extends StatefulWidget {
-  const VariantWidget({super.key, required this.variant});
+  const VariantWidget(
+      {super.key,
+      required this.variant,
+      required this.quantity,
+      required this.actualProductId});
 
   final ProductVariantModel variant;
+  final int quantity;
+  final int actualProductId;
 
   @override
   State<VariantWidget> createState() => _VariantWidgetState();
@@ -29,9 +37,13 @@ class _VariantWidgetState extends State<VariantWidget> {
 
     return BlocBuilder<VariantBloc, VariantState>(
       builder: (context, state) {
+        print("quantity: ${widget.quantity}");
         final variantItem = state.variantList.firstWhere(
           (element) => element.id == widget.variant.id,
-          orElse: () => VariantAddCartModel(id: widget.variant.id, quantity: 0),
+          orElse: () => VariantAddCartModel(
+            id: widget.variant.id,
+            quantity: widget.quantity,
+          ),
         );
         return Container(
           padding: const EdgeInsets.symmetric(
@@ -56,7 +68,7 @@ class _VariantWidgetState extends State<VariantWidget> {
                       width: 60,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
-                          "assets/images/Seller_logo.png",
+                          AppImages.Seller_logo,
                           height: 60,
                           width: 60,
                           fit: BoxFit.contain,
@@ -89,45 +101,17 @@ class _VariantWidgetState extends State<VariantWidget> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              AddController(
-                id: widget.variant.id,
-                quantity: variantItem.quantity,
-                incrementOnPress: () {
-                  context.read<VariantBloc>().add(
-                        IncreaseVariantEvent(
-                          price: double.parse(widget.variant.price).round(),
-                          variantAddCartModel: variantItem.copyWith(
-                            id: widget.variant.id,
-                            quantity: variantItem.quantity,
-                          ),
-                        ),
-                      );
-                  productDetailsBloc.add(
-                    UpdateTotalPriceEvent(
-                      totalPrice: productDetailsBloc.state.totalPrice +
-                          double.parse(widget.variant.price),
-                    ),
-                  );
-                },
-                decrementOnPress: () {
-                  context.read<VariantBloc>().add(
-                        DecreaseVariantEvent(
-                          price: double.parse(widget.variant.price).round(),
-                          variantAddCartModel: variantItem.copyWith(
-                            id: widget.variant.id,
-                            quantity: variantItem.quantity,
-                          ),
-                        ),
-                      );
-                  if (variantItem.quantity > 0) {
-                    productDetailsBloc.add(
-                      UpdateTotalPriceEvent(
-                        totalPrice: productDetailsBloc.state.totalPrice -
-                            double.parse(widget.variant.price),
-                      ),
-                    );
-                  }
-                },
+              ProductController(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(8),
+                ),
+                btnText: "Add",
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                constraints: BoxConstraints(
+                  maxHeight: 30,
+                  maxWidth: 90,
+                ),
+                productId: widget.actualProductId,
               ),
             ],
           ),

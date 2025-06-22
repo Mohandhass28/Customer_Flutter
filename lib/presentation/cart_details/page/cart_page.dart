@@ -1,11 +1,14 @@
 import 'package:customer/common/models/cart/option_add_cart.dart';
 import 'package:customer/common/models/cart/variant_add_cart.dart';
 import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
+import 'package:customer/core/config/assets/app_images.dart';
 import 'package:customer/core/config/theme/app_color.dart';
 import 'package:customer/core/refresh_services/bill_summary_refresh_service.dart';
 import 'package:customer/core/refresh_services/cart_refresh_service.dart';
 import 'package:customer/data/models/cart/cart_list/cart_data_model.dart';
 import 'package:customer/domain/cart/entities/add_to_cart/add_to_cart_params.dart';
+import 'package:customer/domain/cart/entities/cart_list/cart_product_option_entity.dart';
+import 'package:customer/domain/cart/entities/cart_list/cart_product_variant_entity.dart';
 import 'package:customer/domain/cart/usecases/cart_details_usecase.dart';
 import 'package:customer/domain/cart/usecases/modify_cart_usecase.dart';
 import 'package:customer/presentation/cart_details/bloc/cart_details_bloc.dart';
@@ -98,9 +101,10 @@ class _CartPageState extends State<CartPage> {
                             }
 
                             // Create a sorted copy of the cart data based on the order map
-                            final sortedCartData = state.cartList != null
-                                ? List.from(state.cartList!.cartData)
-                                : [];
+                            final List<CartDataModel> sortedCartData =
+                                state.cartList != null
+                                    ? List.from(state.cartList!.cartData)
+                                    : [];
 
                             if (sortedCartData.isNotEmpty) {
                               sortedCartData.sort((a, b) {
@@ -114,104 +118,9 @@ class _CartPageState extends State<CartPage> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ...sortedCartData
-                                    .map((productList) =>
-                                        productList.productVariant)
-                                    .map<Widget>(
-                                  (variantList) {
-                                    return Column(
-                                      children: variantList
-                                          .map<Widget>(
-                                            (varian) => Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(
-                                                      bottom: 20),
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal: 20,
-                                                    vertical: 10,
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            varian.variantName
-                                                                    .isNotEmpty
-                                                                ? varian
-                                                                    .variantName
-                                                                : "No name",
-                                                          ),
-                                                          Text(
-                                                            "₹${varian.price}",
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      AddController(
-                                                        decrementOnPress: () {
-                                                          _cartDetailsBloc.add(
-                                                            ModifyCartEvent(
-                                                              params:
-                                                                  AddToCartParams(
-                                                                productId: varian
-                                                                    .productId,
-                                                                variantAddCartModel: [
-                                                                  VariantAddCartModel(
-                                                                      id: varian
-                                                                          .id,
-                                                                      quantity: varian.quantity >
-                                                                              0
-                                                                          ? varian.quantity -
-                                                                              1
-                                                                          : 0),
-                                                                ],
-                                                                optionAddCartModel: [],
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                        incrementOnPress: () {
-                                                          _cartDetailsBloc.add(
-                                                            ModifyCartEvent(
-                                                              params:
-                                                                  AddToCartParams(
-                                                                productId: varian
-                                                                    .productId,
-                                                                variantAddCartModel: [
-                                                                  VariantAddCartModel(
-                                                                    id: varian
-                                                                        .id,
-                                                                    quantity:
-                                                                        varian.quantity +
-                                                                            1,
-                                                                  ),
-                                                                ],
-                                                                optionAddCartModel: [],
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                        id: varian.id,
-                                                        quantity:
-                                                            varian.quantity,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                          .toList(),
-                                    );
+                                ...sortedCartData.map(
+                                  (productList) {
+                                    return _productCard(productList);
                                   },
                                 ),
                                 ...sortedCartData.map(
@@ -226,102 +135,16 @@ class _CartPageState extends State<CartPage> {
                                           final parentProductList =
                                               sortedCartData.firstWhere(
                                             (product) => product.productOptions
-                                                .any((o) =>
-                                                    o.id ==
-                                                    optionsList.first.id),
-                                            orElse: () => sortedCartData.first
-                                                as CartDataModel,
+                                                .any((o) => o.id == options.id),
+                                            orElse: () => sortedCartData.first,
                                           );
                                           final productId = parentProductList
                                               .productDetails.id;
-                                          return Column(
-                                            children: [
-                                              Container(
-                                                margin:
-                                                    EdgeInsets.only(bottom: 20),
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal: 20,
-                                                  vertical: 10,
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          options.name
-                                                                  .isNotEmpty
-                                                              ? options.name
-                                                              : "No name",
-                                                        ),
-                                                        Text(
-                                                          "₹${options.price}",
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    AddController(
-                                                      id: options.id,
-                                                      quantity:
-                                                          options.quantity,
-                                                      decrementOnPress: () {
-                                                        _cartDetailsBloc.add(
-                                                          ModifyCartEvent(
-                                                            params:
-                                                                AddToCartParams(
-                                                              productId:
-                                                                  productId,
-                                                              variantAddCartModel: [],
-                                                              optionAddCartModel: [
-                                                                OptionAddCartModel(
-                                                                  id: options
-                                                                      .id,
-                                                                  quantity: options
-                                                                              .quantity >
-                                                                          0
-                                                                      ? options
-                                                                              .quantity -
-                                                                          1
-                                                                      : 0,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      incrementOnPress: () {
-                                                        _cartDetailsBloc.add(
-                                                          ModifyCartEvent(
-                                                            params:
-                                                                AddToCartParams(
-                                                              productId:
-                                                                  productId,
-                                                              variantAddCartModel: [],
-                                                              optionAddCartModel: [
-                                                                OptionAddCartModel(
-                                                                  id: options
-                                                                      .id,
-                                                                  quantity:
-                                                                      options.quantity +
-                                                                          1,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
+                                          return _optionCard(
+                                            parentProductList,
+                                            options,
+                                            productId,
+                                            optionsList,
                                           );
                                         },
                                       ).toList(),
@@ -887,6 +710,204 @@ class _CartPageState extends State<CartPage> {
           ),
         );
       },
+    );
+  }
+
+  // Convert CartProductVariantEntity list to VariantAddCartModel list
+  List<VariantAddCartModel> _convertToVariantAddCartModel(
+      List<CartProductVariantEntity> productVariants) {
+    return productVariants
+        .map((variant) => VariantAddCartModel(
+              id: variant.id,
+              quantity: variant.quantity,
+            ))
+        .toList();
+  }
+
+  // Convert CartProductOptionEntity list to OptionAddCartModel list
+  List<OptionAddCartModel> _convertToOptionAddCartModel(
+      List<CartProductOptionEntity> productOptions) {
+    return productOptions
+        .map((option) => OptionAddCartModel(
+              id: option.id,
+              quantity: option.quantity,
+            ))
+        .toList();
+  }
+
+  Widget _productCard(CartDataModel productList) {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.only(bottom: 20),
+          padding: EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.network(
+                    productList.productDetails.image,
+                    height: 60,
+                    width: 60,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        AppImages.Seller_logo,
+                        height: 60,
+                        width: 60,
+                        fit: BoxFit.contain,
+                      );
+                    },
+                  ),
+                  Text("${productList.productDetails.name}"),
+                  Text("₹${productList.productDetails.price}"),
+                ],
+              ),
+              AddController(
+                constraints: BoxConstraints(
+                  maxHeight: 30,
+                  maxWidth: 90,
+                ),
+                decrementOnPress: () {
+                  _cartDetailsBloc.add(
+                    ModifyCartEvent(
+                      params: AddToCartParams(
+                        productId: productList.productDetails.id,
+                        variantAddCartModel: _convertToVariantAddCartModel(
+                            productList.productVariant),
+                        optionAddCartModel: _convertToOptionAddCartModel(
+                          productList.productOptions,
+                        ),
+                        quantity: (productList.quantity ?? 0) - 1,
+                      ),
+                    ),
+                  );
+                },
+                incrementOnPress: () {
+                  _cartDetailsBloc.add(
+                    ModifyCartEvent(
+                      params: AddToCartParams(
+                        productId: productList.productDetails.id,
+                        variantAddCartModel: _convertToVariantAddCartModel(
+                            productList.productVariant),
+                        optionAddCartModel: _convertToOptionAddCartModel(
+                          productList.productOptions,
+                        ),
+                        quantity: ((productList.quantity) ?? 0) + 1,
+                      ),
+                    ),
+                  );
+                },
+                id: 0,
+                quantity: (productList.quantity) ?? 0,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _optionCard(CartDataModel productList, CartProductOptionEntity options,
+      int productId, List<CartProductOptionEntity> optionsList) {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.only(bottom: 20),
+          padding: EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                spacing: 2,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.network(
+                    options.image,
+                    height: 60,
+                    width: 60,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        AppImages.Seller_logo,
+                        height: 60,
+                        width: 60,
+                        fit: BoxFit.contain,
+                      );
+                    },
+                  ),
+                  Text(
+                    options.name.isNotEmpty ? options.name : "No name",
+                  ),
+                  Text(
+                    "₹${options.price}",
+                  ),
+                ],
+              ),
+              AddController(
+                constraints: BoxConstraints(
+                  maxHeight: 30,
+                  maxWidth: 90,
+                ),
+                id: options.id,
+                quantity: options.quantity,
+                decrementOnPress: () {
+                  _cartDetailsBloc.add(
+                    ModifyCartEvent(
+                      params: AddToCartParams(
+                        productId: productId,
+                        variantAddCartModel: [],
+                        optionAddCartModel: [
+                          ...optionsList.map((option) {
+                            if (option.id == options.id) {
+                              return OptionAddCartModel(
+                                id: option.id,
+                                quantity: option.quantity - 1,
+                              );
+                            }
+                            return option as OptionAddCartModel;
+                          }),
+                        ],
+                        quantity: ((productList.quantity) ?? 0),
+                      ),
+                    ),
+                  );
+                },
+                incrementOnPress: () {
+                  _cartDetailsBloc.add(
+                    ModifyCartEvent(
+                      params: AddToCartParams(
+                        productId: productId,
+                        variantAddCartModel: [],
+                        optionAddCartModel: [
+                          ...optionsList.map((option) {
+                            if (option.id == options.id) {
+                              return OptionAddCartModel(
+                                id: option.id,
+                                quantity: option.quantity + 1,
+                              );
+                            }
+                            return option as OptionAddCartModel;
+                          }),
+                        ],
+                        quantity: ((productList.quantity) ?? 0),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

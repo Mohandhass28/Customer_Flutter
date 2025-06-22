@@ -11,7 +11,7 @@ class AddToCartParams {
     required this.productId,
     required this.variantAddCartModel,
     required this.optionAddCartModel,
-    this.quantity = 1,
+    this.quantity = 0,
   });
 
   Map<String, dynamic> toJson() {

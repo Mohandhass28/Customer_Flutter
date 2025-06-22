@@ -17,7 +17,7 @@ class CartDataModel extends CartDataEntity {
   factory CartDataModel.fromJson(Map<String, dynamic> json) {
     return CartDataModel(
       id: json['id'] ?? 0,
-      quantity: json['quantity'] ?? '0',
+      quantity: int.tryParse(json['quantity']?.toString() ?? '0') ?? 0,
       productDetails:
           CartProductDetailsModel.fromJson(json['product_details'] ?? {}),
       productImages: json['product_images'] ?? [],

@@ -45,6 +45,7 @@ class CartApiServiceImpl implements CartApiService {
           e.type == DioExceptionType.sendTimeout) {
         return const Left(NetworkFailure(message: 'Network connection failed'));
       }
+      print(e);
       return Left(ServerFailure(message: e.message ?? 'Server error'));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
@@ -102,7 +103,7 @@ class CartApiServiceImpl implements CartApiService {
       AddToCartParams params) async {
     try {
       final response = await _dioClient.post(
-        endpoint: 'customer/product/modify_cart',
+        endpoint: 'customer/product/add_to_cart',
         params: params.toJson(),
       );
       if (response.statusCode == 200) {

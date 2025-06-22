@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:customer/common/widgets/bottom_cart_with_scroll/bottom_cart_with_scroll.dart';
+import 'package:customer/core/refresh_services/cart_visibility_service.dart';
 import 'package:customer/data/models/favourites_product_list/fav_product_model.dart';
 import 'package:customer/domain/favourites_product_list/usecases/get_fav_product_list_usecase.dart';
 import 'package:customer/domain/shop/entities/shop_list/shop_list_params.dart';
@@ -15,8 +17,6 @@ import 'package:customer/presentation/tabs/widget/recommended_card/recommended_c
 import 'package:customer/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../widget/ListAndMap/list_map_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -81,6 +81,41 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            // Ignore scroll notifications from carousel or other nested scrollables
+            if (notification.depth > 0) {
+              return true;
+            }
+
+            // Process all scroll update notifications
+            if (notification is ScrollUpdateNotification) {
+              // We're only using scrollDelta for direction detection
+
+              // Check if we have a meaningful scroll delta
+              if (notification.scrollDelta != null &&
+                  notification.scrollDelta!.round() > 0) {
+                sl<CartVisibilityService>().hideCart();
+              } else if (notification.scrollDelta != null &&
+                  notification.scrollDelta!.round() < 0) {
+                sl<CartVisibilityService>().showCart();
+              }
+            }
+
+            return false;
+          },
+          child: Expanded(
+            child: _home(context),
+          ),
+        ),
+        BottomCartWithScroll(),
+      ],
+    );
+  }
+
+  Widget _home(BuildContext context) {
     return BlocProvider.value(
       value: _homeBloc
         ..add(
@@ -106,6 +141,43 @@ class _HomePageState extends State<HomePage> {
                   // Use a unique key for each HeaderWidget instance
                   HeaderWidget(key: ValueKey('home_header')),
                   SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search here...',
+                        prefixIcon: Icon(Icons.search),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: const Color.fromARGB(159, 38, 38, 38)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: const Color.fromARGB(159, 38, 38, 38)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.blue),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
                   CarouselSliderWidget(),
                   SizedBox(height: 15),
 

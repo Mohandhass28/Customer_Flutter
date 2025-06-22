@@ -1,3 +1,4 @@
+import 'package:customer/common/widgets/bottom_Cart/bottom_cart.dart';
 import 'package:customer/core/bloc/cart_list_bloc/bloc/cart_list_bloc.dart';
 import 'package:customer/core/config/theme/app_color.dart';
 import 'package:customer/data/models/shop/shop_details/shop_details_model.dart';
@@ -433,7 +434,7 @@ class _ShopDetailsState extends State<ShopDetails> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 16.0),
+                        horizontal: 16.0, vertical: 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -476,73 +477,7 @@ class _ShopDetailsState extends State<ShopDetails> {
                     ),
                   ),
                 ),
-                MultiBlocProvider(
-                  providers: [
-                    BlocProvider.value(
-                      value: sl<CartListBloc>(),
-                    ),
-                    BlocProvider.value(
-                      value: sl<BillSummaryBloc>()
-                        ..add(
-                          GetBillSummaryEvent(),
-                        ),
-                    ),
-                  ],
-                  child: BlocBuilder<CartListBloc, CartListState>(
-                    builder: (context, state) {
-                      if (state.status == CartListStatus.loading) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      if (state.cartList != null &&
-                          state.cartList!.cartData.isNotEmpty) {
-                        return GestureDetector(
-                          onTap: () {
-                            context.push('/cart');
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                stops: const [0.2, 1],
-                                colors: const [
-                                  Color(0xFF016735),
-                                  Color(0xFF539472),
-                                ],
-                              ),
-                            ),
-                            child:
-                                BlocBuilder<BillSummaryBloc, BillSummaryState>(
-                              builder: (context, state) {
-                                return Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        "₹${state.cartDetails?.cartDetails.finalAmount ?? 0}",
-                                        style: TextStyle(
-                                          color: AppColor.textColor,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      }
-                      return Container();
-                    },
-                  ),
-                ),
+                BottomCart(),
               ],
             ),
           );

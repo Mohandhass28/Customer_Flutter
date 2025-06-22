@@ -20,6 +20,7 @@ class ProductVariantModel extends ProductVariantEntity {
     required super.isUnpackagePrd,
     super.unpackagePrdUnit,
     super.unpackagePrdPrice,
+    required super.actual_product_id,
   });
 
   factory ProductVariantModel.fromJson(Map<String, dynamic> json) {
@@ -42,6 +43,7 @@ class ProductVariantModel extends ProductVariantEntity {
       isUnpackagePrd: json['is_unpackage_prd'] ?? 0,
       unpackagePrdUnit: json['unpackage_prd_unit'],
       unpackagePrdPrice: json['unpackage_prd_price'],
+      actual_product_id: json['actual_product_id'] ?? 0,
     );
   }
 
@@ -65,6 +67,7 @@ class ProductVariantModel extends ProductVariantEntity {
       'is_unpackage_prd': isUnpackagePrd,
       'unpackage_prd_unit': unpackagePrdUnit,
       'unpackage_prd_price': unpackagePrdPrice,
+      'actual_product_id': actual_product_id,
     };
   }
 }

@@ -50,9 +50,26 @@ class _ProductCartState extends State<ProductCart> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: Image(
-                        image: NetworkImage(widget.product.logo),
+                      child: Image.network(
+                        widget.product.logo,
                         fit: BoxFit.cover,
+                        cacheWidth: 600, // Optimize for screen width
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey[200],
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                                strokeWidth: 2.0,
+                              ),
+                            ),
+                          );
+                        },
                         errorBuilder: (context, error, stackTrace) {
                           return Image.asset(
                             "assets/images/orderlaneSellerIcon.png",
@@ -75,10 +92,10 @@ class _ProductCartState extends State<ProductCart> {
                             begin: Alignment.topRight,
                             end: Alignment.bottomLeft,
                             colors: [
-                              Colors.black.withOpacity(0),
+                              Colors.black.withAlpha(0),
                               Colors.transparent,
                               Colors.transparent,
-                              Colors.black.withOpacity(.7),
+                              Colors.black.withAlpha(179), // ~0.7 opacity
                             ],
                             stops: [0.0, 0.3, 0.4, 1.0],
                           ),
@@ -149,9 +166,9 @@ class InnerShadowCategoryCard extends StatelessWidget {
   final ShopListModel product;
 
   const InnerShadowCategoryCard({
-    Key? key,
+    super.key,
     required this.product,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -181,10 +198,10 @@ class InnerShadowCategoryCard extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.black.withOpacity(0.1),
+                      Colors.black.withAlpha(26), // ~0.1 opacity
                       Colors.transparent,
                       Colors.transparent,
-                      Colors.black.withOpacity(0.1),
+                      Colors.black.withAlpha(26), // ~0.1 opacity
                     ],
                     stops: [0.0, 0.3, 0.7, 1.0],
                   ),

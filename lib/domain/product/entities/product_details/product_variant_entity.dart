@@ -19,6 +19,7 @@ class ProductVariantEntity extends Equatable {
   final int isUnpackagePrd;
   final String? unpackagePrdUnit;
   final String? unpackagePrdPrice;
+  final int actual_product_id;
 
   const ProductVariantEntity({
     required this.id,
@@ -39,6 +40,7 @@ class ProductVariantEntity extends Equatable {
     required this.isUnpackagePrd,
     this.unpackagePrdUnit,
     this.unpackagePrdPrice,
+    required this.actual_product_id,
   });
 
   @override
@@ -61,5 +63,6 @@ class ProductVariantEntity extends Equatable {
         isUnpackagePrd,
         unpackagePrdUnit,
         unpackagePrdPrice,
+        actual_product_id,
       ];
 }

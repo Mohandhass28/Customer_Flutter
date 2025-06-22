@@ -1,8 +1,11 @@
 import 'package:bloc/bloc.dart';
+import 'package:customer/core/refresh_services/bill_summary_refresh_service.dart';
+import 'package:customer/core/refresh_services/cart_refresh_service.dart';
 import 'package:customer/data/models/cart/cart_details/cart_response_model.dart';
 import 'package:customer/domain/cart/entities/add_to_cart/add_to_cart_params.dart';
 import 'package:customer/domain/cart/entities/add_to_cart/add_to_cart_responce.dart';
 import 'package:customer/domain/cart/usecases/modify_cart_usecase.dart';
+import 'package:customer/service_locator.dart';
 import 'package:equatable/equatable.dart';
 
 part 'cart_details_event.dart';
@@ -39,6 +42,8 @@ class CartDetailsBloc extends Bloc<CartDetailsEvent, CartDetailsState> {
             modifyCartResponse: modifyCartResponse,
           ),
         );
+        sl<CartRefreshService>().refreshCart();
+        sl<BillSummaryRefreshService>().refreshBillSummary();
       },
     );
   }

@@ -113,9 +113,13 @@ class _RecommendedCardPageState extends State<RecommendedCardPage> {
       return Image.asset(
         AppImages.Seller_logo,
         fit: BoxFit.cover,
+        width: 130,
+        height: 80,
         errorBuilder: (context, error, stackTrace) {
           return Container(
             color: Colors.grey[300],
+            width: 130,
+            height: 80,
             child: const Icon(Icons.store, color: Colors.grey),
           );
         },
@@ -125,13 +129,38 @@ class _RecommendedCardPageState extends State<RecommendedCardPage> {
     return Image.network(
       bannerImage,
       fit: BoxFit.cover,
+      width: 130,
+      height: 80,
+      cacheWidth: 260, // 2x the display width for high-res screens
+      cacheHeight: 160, // 2x the display height
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          width: 130,
+          height: 80,
+          color: Colors.grey[200],
+          child: Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+              strokeWidth: 2.0,
+            ),
+          ),
+        );
+      },
       errorBuilder: (context, error, stackTrace) {
         return Image.asset(
           AppImages.Seller_logo,
           fit: BoxFit.cover,
+          width: 130,
+          height: 80,
           errorBuilder: (context, error, stackTrace) {
             return Container(
               color: Colors.grey[300],
+              width: 130,
+              height: 80,
               child: const Icon(Icons.store, color: Colors.grey),
             );
           },
