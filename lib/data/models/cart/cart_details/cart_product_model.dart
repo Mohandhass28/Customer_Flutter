@@ -42,7 +42,7 @@ class CartDetailsProductModel extends CartDetailsProductEntity {
       stockStatus: json['stock_status'] ?? false,
       qty: json['qty'] ?? '0',
       status: json['status'] ?? false,
-      imageList: List<String>.from(json['imageList'] ?? []),
+      imageList: List<Map<String, dynamic>>.from(json['imageList'] ?? []),
       variantList: (json['variantList'] as List<dynamic>?)
               ?.map((e) => CartDetailsVariantModel.fromJson(e))
               .toList() ??

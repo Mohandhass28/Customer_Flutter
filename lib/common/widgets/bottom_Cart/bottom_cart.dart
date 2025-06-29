@@ -76,7 +76,7 @@ class _BottomCartState extends State<BottomCart> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    "${state.cartDetails?.cartDetails.cartItemCount ?? 0} Items",
+                                    "${state.cartDetails?.productDetails.length ?? 0} Items",
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,

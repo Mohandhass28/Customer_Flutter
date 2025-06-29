@@ -50,106 +50,103 @@ class _ShopCardState extends State<ShopCard> {
           value: sl<CartListBloc>(),
         ),
       ],
-      child: Card(
-        elevation: 2,
-        margin: EdgeInsets.only(top: 20, bottom: 10),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Product details (left side)
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      widget.productDetails.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      "₹${widget.productDetails.price}",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    BlocBuilder<ProductDetailsBloc, ProductDetailsState>(
-                      builder: (context, state) {
-                        return Text(
-                          "${state.productDetails?.productData.productDetails.qty} ${state.productDetails?.productData.productDetails.unit}",
-                        );
-                      },
-                    ),
-                    SizedBox(height: 4),
-
-                    // Star rating
-                    Row(
+      child: BlocConsumer<ProductDetailsBloc, ProductDetailsState>(
+        listener: (context, state) {
+          // TODO: implement listener
+        },
+        builder: (context, productDetail) {
+          if (productDetail.status == ProductDetailsStatus.loading) {
+            return Container();
+          }
+          if (productDetail.status == ProductDetailsStatus.failure) {
+            return Center(
+                child: Text(productDetail.errorMessage ?? "Unknown error"));
+          }
+          if (productDetail.productDetails == null) {
+            return Center(child: Text("No product details found"));
+          }
+          return Card(
+            elevation: 2,
+            margin: EdgeInsets.only(top: 20, bottom: 10),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product details (left side)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        for (int i = 0; i < 5; i++)
-                          Icon(
-                            widget.productDetails.prdAvgRating > i
-                                ? Icons.star
-                                : Icons.star_border,
-                            color: const Color.fromARGB(255, 228, 212, 64),
-                            size: 18,
-                          ),
-                        SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            "${widget.productDetails.prdAvgRating} Rating",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[700],
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                        Text(
+                          productDetail
+                              .productDetails!.productData.productDetails.name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
+                        SizedBox(height: 4),
+                        Text(
+                          "₹${productDetail.productDetails!.productData.productDetails.price}",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          "${productDetail.productDetails?.productData.productDetails.qty} ${productDetail.productDetails?.productData.productDetails.unit}",
+                        ),
+                        SizedBox(height: 4),
 
-                    // Description
-                    ExpandableText(
-                      text: widget.productDetails.description,
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      expandButtonStyle: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColor.primaryColor,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    BlocBuilder<ProductDetailsBloc, ProductDetailsState>(
-                      builder: (context, productDetail) {
-                        if (productDetail.status ==
-                            ProductDetailsStatus.loading) {
-                          return Container();
-                        }
-                        if (productDetail.status ==
-                            ProductDetailsStatus.failure) {
-                          return Center(
-                              child: Text(productDetail.errorMessage ??
-                                  "Unknown error"));
-                        }
-                        if (productDetail.productDetails == null) {
-                          return Center(
-                              child: Text("No product details found"));
-                        }
-                        return Container(
+                        // Star rating
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (int i = 0; i < 5; i++)
+                              Icon(
+                                widget.productDetails.prdAvgRating > i
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: const Color.fromARGB(255, 228, 212, 64),
+                                size: 18,
+                              ),
+                            SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                "${widget.productDetails.prdAvgRating} Rating",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[700],
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+
+                        // Description
+                        ExpandableText(
+                          text: productDetail.productDetails!.productData
+                              .productDetails.description,
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          expandButtonStyle: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColor.primaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Container(
                           width: 20,
                           height: 20,
                           decoration: BoxDecoration(
@@ -180,213 +177,256 @@ class _ShopCardState extends State<ShopCard> {
                               );
                             },
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              // Product image and add button (right side)
-              SizedBox(width: 12),
-              SizedBox(
-                width: 110,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // Product image with add button
-                    Stack(
+                  // Product image and add button (right side)
+                  SizedBox(width: 12),
+                  SizedBox(
+                    width: 110,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        // Product image
-                        BlocProvider.value(
-                          value: productDetailsBloc,
-                          child: GestureDetector(
-                            onTap: () {
-                              ProductDetails().showProductDetailsBottomSheet(
-                                context,
-                                productId: widget.productDetails.id,
-                              );
-                            },
-                            child: Container(
-                              width: 110,
-                              height: 110,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: Colors.grey[300]!,
-                                  width: 1,
+                        // Product image with add button
+                        Stack(
+                          children: [
+                            // Product image
+                            BlocProvider.value(
+                              value: productDetailsBloc,
+                              child: GestureDetector(
+                                onTap: () {
+                                  ProductDetails()
+                                      .showProductDetailsBottomSheet(
+                                    context,
+                                    productId: widget.productDetails.id,
+                                  );
+                                },
+                                child: Container(
+                                  width: 110,
+                                  height: 110,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.grey[300]!,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: !productDetail
+                                            .productDetails!
+                                            .productData
+                                            .productDetails
+                                            .stockStatus
+                                        ? _buildProductImage(
+                                            productDetail
+                                                .productDetails!
+                                                .productData
+                                                .productDetails
+                                                .image,
+                                          )
+                                        : Stack(
+                                            children: [
+                                              _buildProductImage(
+                                                productDetail
+                                                    .productDetails!
+                                                    .productData
+                                                    .productDetails
+                                                    .image,
+                                              ),
+                                              Opacity(
+                                                opacity: .5,
+                                                child: Positioned.fill(
+                                                  child: Image(
+                                                    image: AssetImage(
+                                                      AppImages
+                                                          .unavailableImage,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                  ),
                                 ),
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: _buildProductImage(),
-                              ),
                             ),
-                          ),
-                        ),
 
-                        // Add button
-                        BlocBuilder<CartListBloc, CartListState>(
-                          builder: (context, state) {
-                            int? count = 0;
+                            // Add button
+                            BlocBuilder<CartListBloc, CartListState>(
+                              builder: (context, state) {
+                                int? count = 0;
 
-                            // Check if cartList is null or empty
-                            if (state.cartList == null ||
-                                state.cartList!.cartData.isEmpty) {
-                              _productInCart = false;
-                            } else if (state.cartList!.cartData
-                                .map((element) => element.productDetails.id)
-                                .contains(widget.productDetails.id)) {
-                              _productInCart = true;
-                              final cartItem =
-                                  state.cartList!.cartData.firstWhere(
-                                (element) =>
-                                    element.productDetails.id ==
-                                    widget.productDetails.id,
-                              );
+                                // Check if cartList is null or empty
+                                if (state.cartList == null ||
+                                    state.cartList!.cartData.isEmpty) {
+                                  _productInCart = false;
+                                } else if (state.cartList!.cartData
+                                    .map((element) => element.productDetails.id)
+                                    .contains(widget.productDetails.id)) {
+                                  _productInCart = true;
+                                  final cartItem =
+                                      state.cartList!.cartData.firstWhere(
+                                    (element) =>
+                                        element.productDetails.id ==
+                                        widget.productDetails.id,
+                                  );
 
-                              count = cartItem.productVariant.fold<int>(
-                                0,
-                                (previousValue, element) =>
-                                    previousValue + element.quantity,
-                              );
-
-                              count = count +
-                                  cartItem.productOptions.fold<int>(
+                                  count = cartItem.productVariant.fold<int>(
                                     0,
                                     (previousValue, element) =>
                                         previousValue + element.quantity,
                                   );
 
-                              count = count + cartItem.quantity;
-                            } else {
-                              _productInCart = false;
-                            }
-                            if (_productInCart) {
-                              return Positioned(
-                                bottom: 0,
-                                right: 0,
-                                left: 0,
-                                child: TextButton(
-                                  style: ButtonStyle(
-                                    minimumSize: WidgetStateProperty.all<Size>(
-                                      Size(double.infinity, 34),
-                                    ),
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: VisualDensity.compact,
-                                    backgroundColor:
-                                        WidgetStateProperty.all<Color>(
-                                      Color(0xFFA4F4AB),
-                                    ),
-                                    shape: WidgetStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(6),
-                                        side: BorderSide(
-                                          color: AppColor.primaryColor,
-                                          width: 1,
+                                  count = count +
+                                      cartItem.productOptions.fold<int>(
+                                        0,
+                                        (previousValue, element) =>
+                                            previousValue + element.quantity,
+                                      );
+
+                                  count = count + cartItem.quantity;
+                                } else {
+                                  _productInCart = false;
+                                }
+                                if (_productInCart) {
+                                  return Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    left: 0,
+                                    child: TextButton(
+                                      style: ButtonStyle(
+                                        minimumSize:
+                                            WidgetStateProperty.all<Size>(
+                                          Size(double.infinity, 34),
+                                        ),
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                        backgroundColor:
+                                            WidgetStateProperty.all<Color>(
+                                          Color(0xFFA4F4AB),
+                                        ),
+                                        shape: WidgetStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                            side: BorderSide(
+                                              color: AppColor.primaryColor,
+                                              width: 1,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        ProductDetails()
+                                            .showAddToCartBottomSheet(
+                                          context,
+                                          productId: widget.productDetails.id,
+                                        );
+                                      },
+                                      child: Text(
+                                        "${count}",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  onPressed: () {
-                                    ProductDetails().showAddToCartBottomSheet(
-                                      context,
-                                      productId: widget.productDetails.id,
-                                    );
-                                  },
-                                  child: Text(
-                                    "${count}",
-                                    style: TextStyle(
-                                      fontSize: 14,
+                                  );
+                                }
+                                if (productDetail.productDetails!.productData
+                                    .productDetails.stockStatus) {
+                                  return SizedBox.shrink();
+                                }
+                                return Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  left: 0,
+                                  child: TextButton.icon(
+                                    icon: Icon(
+                                      Icons.add,
                                       color: Colors.black,
-                                      fontWeight: FontWeight.w500,
+                                      size: 15,
                                     ),
-                                  ),
-                                ),
-                              );
-                            }
-                            return Positioned(
-                              bottom: 0,
-                              right: 0,
-                              left: 0,
-                              child: TextButton.icon(
-                                icon: Icon(
-                                  Icons.add,
-                                  color: Colors.black,
-                                  size: 15,
-                                ),
-                                iconAlignment: IconAlignment.end,
-                                style: ButtonStyle(
-                                  minimumSize: WidgetStateProperty.all<Size>(
-                                    Size(double.infinity, 34),
-                                  ),
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  visualDensity: VisualDensity.compact,
-                                  backgroundColor:
-                                      WidgetStateProperty.all<Color>(
-                                    Color(0xFFA4F4AB),
-                                  ),
-                                  shape: WidgetStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                      side: BorderSide(
-                                        color: AppColor.primaryColor,
-                                        width: 1,
+                                    iconAlignment: IconAlignment.end,
+                                    style: ButtonStyle(
+                                      minimumSize:
+                                          WidgetStateProperty.all<Size>(
+                                        Size(double.infinity, 34),
+                                      ),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      visualDensity: VisualDensity.compact,
+                                      backgroundColor:
+                                          WidgetStateProperty.all<Color>(
+                                        Color(0xFFA4F4AB),
+                                      ),
+                                      shape: WidgetStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          side: BorderSide(
+                                            color: AppColor.primaryColor,
+                                            width: 1,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      ProductDetails().showAddToCartBottomSheet(
+                                        context,
+                                        productId: widget.productDetails.id,
+                                      );
+                                    },
+                                    label: Text(
+                                      "Add",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ),
-                                ),
-                                onPressed: () {
-                                  ProductDetails().showAddToCartBottomSheet(
-                                    context,
-                                    productId: widget.productDetails.id,
-                                  );
-                                },
-                                label: Text(
-                                  "Add",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+
+                        // Customizable text
+                        SizedBox(height: 8),
+                        Text(
+                          "Customisable",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: AppColor.primaryColor,
+                          ),
                         ),
                       ],
                     ),
-
-                    // Customizable text
-                    SizedBox(height: 8),
-                    Text(
-                      "Customisable",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: AppColor.primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildProductImage() {
-    if (kReleaseMode) {
+  Widget _buildProductImage(String image) {
+    if (image != "") {
       // In release mode, try to load the image with error handling
       try {
         return Image.network(
-          widget.productDetails.image,
+          image,
           fit: BoxFit.cover,
           width: 110,
           height: 110,
@@ -423,7 +463,7 @@ class _ShopCardState extends State<ShopCard> {
     } else {
       // In debug mode, use the normal approach
       return Image.network(
-        widget.productDetails.image,
+        image,
         fit: BoxFit.cover,
         width: 110,
         height: 110,

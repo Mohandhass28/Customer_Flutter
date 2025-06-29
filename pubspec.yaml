@@ -52,21 +52,22 @@ dependencies:
   flutter_otp_text_field: ^1.5.1+1
   flutter_map: ^8.1.1
   flutter_map_cancellable_tile_provider: ^3.1.0
-  geolocator: ^10.1.0
-  permission_handler: ^11.0.1
-  geocoding: ^3.0.0
+  geolocator: ^14.0.1
+  permission_handler: ^12.0.0+1
+  geocoding: ^4.0.0
   rxdart: ^0.28.0
   razorpay_flutter: ^1.4.0
   google_maps_flutter: ^2.12.1
-  intl: ^0.19.0
+  intl: ^0.20.2
   carousel_slider: ^5.0.0
+  device_preview: ^1.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito: ^5.4.2
   build_runner: ^2.4.6
-  analyzer: 6.11.0
+  analyzer: ^7.5.2
   bloc_test: ^10.0.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -74,7 +75,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
 
 # For information on the generic Dart part of this file, see the
@@ -109,6 +110,7 @@ flutter:
     - assets/images/
     - assets/images/orderlaneSellerIcon.png
     - assets/images/CarouselImg.png
+    - assets/images/UNAVAILABLE-01.png
 
   #   - images/a_dot_ham.jpeg
 

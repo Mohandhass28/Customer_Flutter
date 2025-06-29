@@ -10,15 +10,15 @@ class CartProductDetailsEntity extends Equatable {
   final double slashPrice;
   final String unit;
   final int isTaxable;
-  final String cgst;
-  final String sgst;
-  final String cess;
+  final double cgst;
+  final double sgst;
+  final double cess;
   final String image;
   final bool stockStatus;
-  final String qty;
+  final int qty;
   final int isUnpackagePrd;
   final String unpackagePrdUnit;
-  final String unpackagePrdPrice;
+  // final String unpackagePrdPrice;
   final bool status;
   final int unpackagePrdQty;
 
@@ -40,7 +40,7 @@ class CartProductDetailsEntity extends Equatable {
     required this.qty,
     required this.isUnpackagePrd,
     required this.unpackagePrdUnit,
-    required this.unpackagePrdPrice,
+    // required this.unpackagePrdPrice,
     required this.status,
     required this.unpackagePrdQty,
   });
@@ -64,7 +64,7 @@ class CartProductDetailsEntity extends Equatable {
         qty,
         isUnpackagePrd,
         unpackagePrdUnit,
-        unpackagePrdPrice,
+        // unpackagePrdPrice,
         status,
         unpackagePrdQty,
       ];

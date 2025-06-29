@@ -18,7 +18,7 @@ class CartDetailsProductEntity extends Equatable {
   final bool stockStatus;
   final String qty;
   final bool status;
-  final List<String> imageList;
+  final List<Map<String, dynamic>> imageList;
   final List<CartDetailsVariantEntity> variantList;
   final List<dynamic> optionList;
 

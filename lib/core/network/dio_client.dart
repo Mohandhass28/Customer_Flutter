@@ -40,7 +40,6 @@ class DioClient {
     );
 
     _dio.interceptors.addAll([
-      LoggerInterceptor(),
       RefreshTokenInterceptor(_dio, _sharedPrefs),
     ]);
   }

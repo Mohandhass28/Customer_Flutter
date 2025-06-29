@@ -83,6 +83,43 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        HeaderWidget(key: ValueKey('home_header')),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search here...',
+              prefixIcon: Icon(Icons.search),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.clear),
+                onPressed: () {
+                  _searchController.clear();
+                },
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide:
+                    BorderSide(color: const Color.fromARGB(159, 38, 38, 38)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide:
+                    BorderSide(color: const Color.fromARGB(159, 38, 38, 38)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.blue),
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 9,
+                vertical: 12,
+              ),
+            ),
+          ),
+        ),
         NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             // Ignore scroll notifications from carousel or other nested scrollables
@@ -138,45 +175,6 @@ class _HomePageState extends State<HomePage> {
               child: Flex(
                 direction: Axis.vertical,
                 children: [
-                  // Use a unique key for each HeaderWidget instance
-                  HeaderWidget(key: ValueKey('home_header')),
-                  SizedBox(height: 15),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search here...',
-                        prefixIcon: Icon(Icons.search),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                          },
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: const Color.fromARGB(159, 38, 38, 38)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: const Color.fromARGB(159, 38, 38, 38)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.blue),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 9,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ),
                   SizedBox(height: 10),
                   CarouselSliderWidget(),
                   SizedBox(height: 15),

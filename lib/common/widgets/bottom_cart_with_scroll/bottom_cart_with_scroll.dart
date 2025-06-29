@@ -81,7 +81,6 @@ class _BottomCartWithScrollState extends State<BottomCartWithScroll>
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
-        // Use a combination of size and slide transitions for smoother animation
         return SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(0, 1), // Slide from bottom
@@ -92,7 +91,7 @@ class _BottomCartWithScrollState extends State<BottomCartWithScroll>
           )),
           child: SizeTransition(
             sizeFactor: _animationController,
-            axisAlignment: -1.0, // Bottom-aligned
+            axisAlignment: -1, // Bottom-aligned
             child: child,
           ),
         );

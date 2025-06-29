@@ -19,7 +19,7 @@ class CartProductDetailsModel extends CartProductDetailsEntity {
     required super.qty,
     required super.isUnpackagePrd,
     required super.unpackagePrdUnit,
-    required super.unpackagePrdPrice,
+    // required super.unpackagePrdPrice,
     required super.status,
     required super.unpackagePrdQty,
   });
@@ -30,22 +30,38 @@ class CartProductDetailsModel extends CartProductDetailsEntity {
       productCategoryId: json['product_category_id'] ?? 0,
       name: json['name'] ?? '',
       description: json['description'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
+      price: (json['prd_price'] is int)
+          ? (json['prd_price'] as int).toDouble()
+          : (json['prd_price'] is double)
+              ? json['prd_price']
+              : double.tryParse(json['prd_price'].toString()) ?? 0.0,
       isDiscountedPrd: json['is_discounted_prd'] ?? 0,
-      slashPrice: (json['slash_price'] ?? 0).toDouble(),
-      unit: json['unit'] ?? '',
+      slashPrice: (json['prd_slash_price'] ?? 0).toDouble(),
+      unit: (json['unit'] ?? '').toString(),
       isTaxable: json['is_taxable'] ?? 0,
-      cgst: json['cgst'] ?? '0.00',
-      sgst: json['sgst'] ?? '0.00',
-      cess: json['cess'] ?? '0.00',
+      cgst: (json['cgst'] is int)
+          ? (json['cgst'] as int).toDouble()
+          : (json['cgst'] is double)
+              ? json['cgst']
+              : double.tryParse(json['cgst'].toString()) ?? 0.0,
+      sgst: (json['sgst'] is int)
+          ? (json['sgst'] as int).toDouble()
+          : (json['sgst'] is double)
+              ? json['sgst']
+              : double.tryParse(json['sgst'].toString()) ?? 0.0,
+      cess: (json['cess'] is int)
+          ? (json['cess'] as int).toDouble()
+          : (json['cess'] is double)
+              ? json['cess']
+              : double.tryParse(json['cess'].toString()) ?? 0.0,
       image: json['image'] ?? '',
       stockStatus: json['stock_status'] ?? false,
-      qty: json['qty'] ?? '0',
+      qty: json['qty'] ?? 0,
       isUnpackagePrd: json['is_unpackage_prd'] ?? 0,
       unpackagePrdUnit: json['unpackage_prd_unit'] ?? '',
-      unpackagePrdPrice: json['unpackage_prd_price'] ?? '0.00',
+      // unpackagePrdPrice: json['unpackage_prd_price'] ?? '0.00',
       status: json['status'] ?? false,
-      unpackagePrdQty: json['unpackage_prd_qty'] ?? '0.00',
+      unpackagePrdQty: json['unpackage_prd_qty'] ?? 0,
     );
   }
 
@@ -68,7 +84,7 @@ class CartProductDetailsModel extends CartProductDetailsEntity {
       'qty': qty,
       'is_unpackage_prd': isUnpackagePrd,
       'unpackage_prd_unit': unpackagePrdUnit,
-      'unpackage_prd_price': unpackagePrdPrice,
+      // 'unpackage_prd_price': unpackagePrdPrice,
       'status': status,
       'unpackage_prd_qty': unpackagePrdQty,
     };

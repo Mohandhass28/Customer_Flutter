@@ -52,20 +52,22 @@ class _OptionControllerState extends State<OptionController> {
         builder: (context, state) {
           return BlocBuilder<CartListBloc, CartListState>(
             builder: (context, state) {
-              // Check if cartList is null or empty
               if (state.cartList == null || state.cartList!.cartData.isEmpty) {
-                return _addToCartButton(0);
+                return _addToCartButton(0, []);
               }
-
               // Try to find the product in the cart
               final productInCart = state.cartList!.cartData
                   .where((element) =>
                       element.productDetails.id == widget.productId)
                   .toList();
+              // Check if cartList is null or empty
+              if (state.cartList == null || state.cartList!.cartData.isEmpty) {
+                return _addToCartButton(0, []);
+              }
 
               // If product is not in cart, return add button
               if (productInCart.isEmpty) {
-                return _addToCartButton(0);
+                return _addToCartButton(0, []);
               }
 
               final productQuantity = productInCart.first.quantity;
@@ -75,7 +77,16 @@ class _OptionControllerState extends State<OptionController> {
                   .any((element) => element.id == widget.optionId)) {
                 return _modifyCartButton(productInCart.first as CartDataModel);
               } else {
-                return _addToCartButton((productQuantity) ?? 0);
+                final OptionsList = productInCart
+                    .map((product) {
+                      return product.productOptions.map((options) {
+                        return OptionAddCartModel(
+                            id: options.id, quantity: options.quantity);
+                      }).toList();
+                    })
+                    .toList()
+                    .first;
+                return _addToCartButton((productQuantity) ?? 0, OptionsList);
               }
             },
           );
@@ -84,7 +95,8 @@ class _OptionControllerState extends State<OptionController> {
     );
   }
 
-  Widget _addToCartButton(int productQuantity) {
+  Widget _addToCartButton(
+      int productQuantity, List<OptionAddCartModel>? listOptions) {
     return BlocProvider(
       create: (context) =>
           AddToCartBloc(addToCartUsecase: sl<AddToCartUsecase>()),
@@ -104,6 +116,7 @@ class _OptionControllerState extends State<OptionController> {
                       quantity: productQuantity,
                       variantAddCartModel: [],
                       optionAddCartModel: [
+                        ...listOptions ?? [],
                         OptionAddCartModel(
                           id: widget.optionId,
                           quantity: 1,

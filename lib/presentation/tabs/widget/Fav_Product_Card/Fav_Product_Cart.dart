@@ -46,7 +46,7 @@ class _FavProductCartState extends State<FavProductCart> {
             ],
           ),
           constraints: BoxConstraints(
-            maxWidth: 160,
+            maxWidth: 150,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -60,6 +60,7 @@ class _FavProductCartState extends State<FavProductCart> {
                 ),
                 child: Container(
                   height: 120,
+                  width: double.infinity,
                   child: Image(
                     image: NetworkImage(widget.product.image),
                     errorBuilder: (context, error, stackTrace) {
@@ -179,44 +180,31 @@ class _FavProductCartState extends State<FavProductCart> {
                           _productInCart = false;
                         }
                         if (_productInCart) {
-                          return Positioned(
-                            bottom: 0,
-                            right: 0,
-                            left: 0,
-                            child: TextButton(
-                              style: ButtonStyle(
-                                minimumSize: WidgetStateProperty.all<Size>(
-                                  Size(double.infinity, 34),
-                                ),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                visualDensity: VisualDensity.compact,
-                                backgroundColor: WidgetStateProperty.all<Color>(
-                                  Color(0xFFA4F4AB),
-                                ),
-                                shape: WidgetStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                    side: BorderSide(
-                                      color: AppColor.primaryColor,
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
+                          return TextButton(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size(double.infinity, 24),
+                              backgroundColor: AppColor.buttonbgColor,
+                              side: BorderSide(
+                                color: AppColor.primaryColor,
+                                width: 1,
                               ),
-                              onPressed: () {
-                                ProductDetails().showAddToCartBottomSheet(
-                                  context,
-                                  productId: widget.product.id,
-                                );
-                              },
-                              child: Text(
-                                count.toString(),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            onPressed: () {
+                              ProductDetails().showAddToCartBottomSheet(
+                                context,
+                                productId: widget.product.id,
+                              );
+                            },
+                            child: Text(
+                              count.toString(),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           );
@@ -230,7 +218,8 @@ class _FavProductCartState extends State<FavProductCart> {
                           },
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
-                            minimumSize: Size(50, 24),
+                            minimumSize: Size(double.infinity, 24),
+                            backgroundColor: AppColor.buttonbgColor,
                             side: BorderSide(
                               color: AppColor.primaryColor,
                               width: 1,

@@ -582,6 +582,7 @@ class ProductDetails extends State<_ProductDetailsPopup> {
                                         ),
                                       ),
                                     ),
+                                    Text("Options"),
                                     const SizedBox(height: 16),
                                     ...state.productDetails!.productData
                                         .productOptions

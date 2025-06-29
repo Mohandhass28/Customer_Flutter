@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:customer/core/bloc/default_address_header/bloc/address_header_bloc.dart';
 import 'package:customer/core/config/assets/app_images.dart';
 import 'package:customer/core/config/theme/app_color.dart';
+import 'package:customer/core/refresh_services/cart_visibility_service.dart';
 import 'package:customer/data/models/address/create_address_model.dart';
 import 'package:customer/domain/address/usecases/get_adderss_list_usecase.dart';
 import 'package:customer/domain/address/usecases/get_default_address_usecase.dart';
@@ -23,12 +26,34 @@ class HeaderWidget extends StatefulWidget {
   State<HeaderWidget> createState() => _HeaderWidgetState();
 }
 
-class _HeaderWidgetState extends State<HeaderWidget> {
+class _HeaderWidgetState extends State<HeaderWidget>
+    with SingleTickerProviderStateMixin {
   // Removed unused _isLoadingAddress field
   LatLng? _currentPosition;
   late TabsBloc _tabsBloc;
   late ProfileBloc _profileBloc;
   bool isCalled = false;
+  late AnimationController _animationController;
+  bool _cartVisible = true;
+  late StreamSubscription _hideCartSubscription;
+  late StreamSubscription _showCartSubscription;
+  void _showCart() {
+    if (!_cartVisible) {
+      _cartVisible = true;
+      // Use animateTo instead of forward for more reliable animation
+      _animationController.animateTo(1.0,
+          duration: const Duration(milliseconds: 200));
+    }
+  }
+
+  void _hideCart() {
+    if (_cartVisible) {
+      _cartVisible = false;
+      // Use animateTo instead of reverse for more reliable animation
+      _animationController.animateTo(0.0,
+          duration: const Duration(milliseconds: 200));
+    }
+  }
 
   @override
   void initState() {
@@ -39,6 +64,34 @@ class _HeaderWidgetState extends State<HeaderWidget> {
     isCalled = false; // Reset isCalled flag
     debugPrint("initState: isCalled set to false");
     _profileBloc = sl<ProfileBloc>()..add(GetProfileEvent());
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+      lowerBound: 0.0,
+      upperBound: 1.0,
+      value: 1,
+    );
+
+    _showCartSubscription = sl<CartVisibilityService>().showCartStream.listen(
+      (event) {
+        if (_cartVisible == false) {
+          setState(() {
+            _showCart();
+          });
+        }
+      },
+    );
+
+    _hideCartSubscription = sl<CartVisibilityService>().hideCartStream.listen(
+      (event) {
+        if (_cartVisible == true) {
+          setState(() {
+            _hideCart();
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -46,6 +99,9 @@ class _HeaderWidgetState extends State<HeaderWidget> {
     debugPrint("dispose: Disposing HeaderWidget");
     // Clean up resources
     _tabsBloc.close();
+    _hideCartSubscription.cancel();
+    _showCartSubscription.cancel();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -204,6 +260,30 @@ class _HeaderWidgetState extends State<HeaderWidget> {
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset(0, 1),
+            end: Offset(0, 0),
+          ).animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Curves.easeOutCubic,
+            ),
+          ),
+          child: SizeTransition(
+            sizeFactor: _animationController,
+            // axisAlignment: -1.0,
+            child: _getheader(context),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _getheader(BuildContext context) {
     // Use BlocProvider.value if the bloc is already created elsewhere
     // Or create a new one with a unique ID
     final addressHeaderBloc = AddressHeaderBloc(
@@ -238,9 +318,6 @@ class _HeaderWidgetState extends State<HeaderWidget> {
           return Column(
             children: [
               Container(
-                constraints: BoxConstraints(
-                  maxHeight: 70,
-                ),
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -253,19 +330,67 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                     ],
                   ),
                 ),
-                child: Stack(
+                padding: const EdgeInsets.only(
+                  left: 14,
+                  top: 16,
+                  bottom: 16,
+                ),
+                child: Row(
                   children: [
-                    Center(
-                      child: Image.asset(
-                        height: 30,
-                        AppImages.TP_logo, // Replace with your logo asset path
-                        fit: BoxFit.contain,
-                        alignment: Alignment.centerLeft,
+                    GestureDetector(
+                      onTap: () {
+                        // Navigate to address book from home
+                        context.push('/home-address-book');
+                      },
+                      child: Container(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.80,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              spacing: 8,
+                              children: [
+                                Icon(
+                                  Icons.maps_home_work,
+                                  color: AppColor.richTextColor,
+                                  size: 18,
+                                ),
+                                Text(
+                                  state.address == null
+                                      ? "No Address"
+                                      : state.address!.type,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // SizedBox(height: 8),
+                            Wrap(
+                              spacing: 10,
+                              children: [
+                                Text(
+                                  state.address == null
+                                      ? "No Address"
+                                      : state.address!.address,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 2,
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.only(right: 16),
-                      margin: EdgeInsets.only(right: 16),
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: Container(
@@ -288,73 +413,6 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Container(
-                constraints: BoxConstraints(
-                  maxHeight: 90,
-                ),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    stops: [0.0, .6],
-                    colors: [
-                      Color.fromARGB(255, 3, 57, 3),
-                      Color.fromARGB(255, 3, 112, 3),
-                    ],
-                  ),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        // Navigate to address book from home
-                        context.push('/home-address-book');
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          Icon(
-                            Icons.maps_home_work,
-                            color: AppColor.richTextColor,
-                            size: 18,
-                          ),
-                          Text(
-                            state.address == null
-                                ? "No Address"
-                                : state.address!.type,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Wrap(
-                      spacing: 10,
-                      children: [
-                        Text(
-                          state.address == null
-                              ? "No Address"
-                              : state.address!.address,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                          maxLines: 2,
-                        ),
-                      ],
-                    )
                   ],
                 ),
               ),
